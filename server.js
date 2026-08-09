@@ -1,4 +1,5 @@
-const express = require('express');
+# Paste code mới vào
+# Ctrl+X → Y → Enterconst express = require('express');
 const fs = require('fs');
 const crypto = require('crypto');
 const cors = require('cors');
@@ -22,6 +23,11 @@ function saveDB(db) {
     fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2));
 }
 
+// ===== ROUTE GỐC =====
+app.get('/', (req, res) => {
+    res.send('✅ Server đang chạy!');
+});
+
 // ===== TẠO KEY =====
 app.post('/create-key', (req, res) => {
     const { key, uses = 20, note = '' } = req.body;
@@ -38,7 +44,7 @@ app.post('/create-key', (req, res) => {
         usedUses: 0,
         remaining: uses,
         note: note,
-        status: 'active', // active, expired, disabled
+        status: 'active',
         created: Date.now(),
         usedBy: []
     };
@@ -65,12 +71,10 @@ app.post('/verify-key', (req, res) => {
     if (keyData.status === 'disabled') return res.json({ success: false, message: '❌ Key đã bị khóa!' });
     if (keyData.remaining <= 0) return res.json({ success: false, message: '❌ Key đã hết lượt dùng!' });
     
-    // Lưu thiết bị đã dùng key này
     if (hwid && !keyData.usedBy.includes(hwid)) {
         keyData.usedBy.push(hwid);
     }
     
-    // Ghi log
     db.logs.push({
         key: key,
         hwid: hwid || 'unknown',
@@ -138,7 +142,6 @@ app.post('/log', (req, res) => {
         timestamp: Date.now()
     });
     
-    // Giữ tối đa 1000 log
     if (db.logs.length > 1000) {
         db.logs = db.logs.slice(-1000);
     }
@@ -147,7 +150,7 @@ app.post('/log', (req, res) => {
     res.json({ success: true });
 });
 
-// ===== XEM LOG (Admin) =====
+// ===== XEM LOG =====
 app.get('/logs', (req, res) => {
     const db = loadDB();
     const limit = parseInt(req.query.limit) || 100;
@@ -165,7 +168,7 @@ app.get('/logs/:key', (req, res) => {
     res.json({ success: true, data: logs });
 });
 
-// ===== DANH SÁCH KEY (Admin) =====
+// ===== DANH SÁCH KEY =====
 app.get('/keys', (req, res) => {
     const db = loadDB();
     const keys = Object.values(db.keys).map(k => ({
@@ -205,16 +208,40 @@ app.post('/disable-key', (req, res) => {
     res.json({ success: true, message: '✅ Key đã bị vô hiệu hóa!' });
 });
 
+// ===== KÍCH HOẠT LẠI KEY =====
+app.post('/enable-key', (req, res) => {
+    const { key } = req.body;
+    const db = loadDB();
+    if (!db.keys[key]) return res.json({ success: false, error: 'Key không tồn tại!' });
+    db.keys[key].status = 'active';
+    saveDB(db);
+    res.json({ success: true, message: '✅ Key đã được kích hoạt lại!' });
+});
+
+// ===== XÓA KEY =====
+app.post('/delete-key', (req, res) => {
+    const { key } = req.body;
+    const db = loadDB();
+    if (!db.keys[key]) return res.json({ success: false, error: 'Key không tồn tại!' });
+    delete db.keys[key];
+    saveDB(db);
+    res.json({ success: true, message: '✅ Key đã bị xóa!' });
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`\n✅ SERVER CHẠY TẠI PORT ${PORT}`);
     console.log('\n📋 API ENDPOINTS:');
-    console.log('  POST /create-key   - Tạo key');
-    console.log('  POST /verify-key   - Xác thực key');
-    console.log('  POST /use-key      - Trừ lượt dùng');
-    console.log('  POST /log          - Ghi log');
-    console.log('  GET  /logs         - Xem log');
-    console.log('  GET  /keys         - Danh sách key');
-    console.log('  GET  /stats        - Thống kê');
-    console.log('  POST /disable-key  - Vô hiệu hóa key');
+    console.log('  GET  /                - Trang chủ');
+    console.log('  POST /create-key      - Tạo key');
+    console.log('  POST /verify-key      - Xác thực key');
+    console.log('  POST /use-key         - Trừ lượt dùng');
+    console.log('  POST /log             - Ghi log');
+    console.log('  GET  /logs            - Xem log');
+    console.log('  GET  /logs/:key       - Xem log theo key');
+    console.log('  GET  /keys            - Danh sách key');
+    console.log('  GET  /stats           - Thống kê');
+    console.log('  POST /disable-key     - Vô hiệu hóa key');
+    console.log('  POST /enable-key      - Kích hoạt lại key');
+    console.log('  POST /delete-key      - Xóa key');
 });
