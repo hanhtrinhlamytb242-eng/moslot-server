@@ -1,0 +1,15 @@
+{
+  "keys": {
+    "AOG-HOE-KPG-1001": {
+      "key": "AOG-HOE-KPG-1001",
+      "totalUses": 20,
+      "usedUses": 0,
+      "remaining": 20,
+      "note": "Key test",
+      "status": "active",
+      "created": 1786254556935,
+      "usedBy": []
+    }
+  },
+  "logs": []
+}
