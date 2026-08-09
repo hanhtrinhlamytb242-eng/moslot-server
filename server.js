@@ -14,7 +14,7 @@ const DB_FILE = 'data.json';
 const TOOL_DECRYPT_KEY = Buffer.from('dca2ee0a6eec27ea1e180e5d3f0f689d7d99b5d231e025d70ae7d4eaa0988b24', 'hex');
 const TOOL_DECRYPT_IV = Buffer.from('8aeedaaf68b7291f28ea9331141576a8', 'hex');
 
-// ===== MÃ HÓA AES =====
+// ===== MÃ HÓA AES (GIỐNG TOOL GỐC) =====
 const K_AES2 = Buffer.from("gksekfidjrqjfwk1", "utf8");
 const I_AES2 = Buffer.from("towerdefense_amo", "utf8");
 
@@ -113,14 +113,11 @@ app.post('/verify-key', (req, res) => {
     const db = loadDB();
     const keyData = db.keys[key];
     if (!keyData) {
-        // Tạo key tự động nếu chưa tồn tại
         const uses = 20;
         db.keys[key] = {
             key, totalUses: uses, usedUses: 0, remaining: uses,
             note: 'Auto created', status: 'active', created: Date.now(), usedBy: []
         };
-        saveDB(db);
-        db.logs.push({ key, hwid: hwid || 'unknown', action: 'auto_create', time: new Date().toLocaleString('vi-VN') });
         saveDB(db);
         return res.json({
             success: true,
@@ -238,26 +235,33 @@ app.post('/delete-key', (req, res) => {
     res.json({ success: true, message: '✅ Key đã bị xóa!' });
 });
 
-// ===== GIỚI HẠN SỐ LẦN HACK MỖI LƯỢT =====
+// ===== GIỚI HẠN HACK =====
 const MAX_HACK_PER_SESSION = 5;
 
-// ===== API LẤY DỮ LIỆU USER =====
+// ===== API GET USER DATA (GIỮ NGUYÊN CÁCH LẤY CỦA TOOL) =====
 app.post('/get-user-data', async (req, res) => {
     const { platform, uniq_id, host_id, key, hwid } = req.body;
+    
     const db = loadDB();
     const keyData = db.keys[key];
     if (!keyData) return res.json({ success: false, error: 'Key không tồn tại!' });
     if (keyData.remaining <= 0) return res.json({ success: false, error: 'Key đã hết lượt!' });
+    
     try {
         const isViet = (platform === 'AMO' || platform === 'SS');
         const gicDefault = isViet ? "선택된서버:베트남서버 ping:67ms" : "선택된서버:한국서버 ping:205ms";
+        
         const getUrl = `http://211.253.26.47:8093/TOWERDEFENCE_${platform}/get_user_data_all_AES2.php`;
         const getPayload = {
-            UNIQ_ID: uniq_id, HOST_ID: host_id,
-            MOBILE_CONNECT: "", ANDROID_AD: "",
-            GICHAPO: gicDefault, LOCAL_KEY: null
+            UNIQ_ID: uniq_id,
+            HOST_ID: host_id,
+            MOBILE_CONNECT: "",
+            ANDROID_AD: "",
+            GICHAPO: gicDefault,
+            LOCAL_KEY: null
         };
         if (platform === 'ATV' || platform === 'LG') getPayload.MODEL_NAME = "BeyondTV";
+
         const resData = await postRequest(getUrl, `DATA=${encodeURIComponent(encryptAES2(getPayload))}`);
         const dec = decryptAES2(resData);
         if (!dec) throw new Error('Không giải mã được dữ liệu GET');
@@ -267,6 +271,7 @@ app.post('/get-user-data', async (req, res) => {
         const val = data.VALUE || {};
         const normal = val.normal?.value || {};
         const rubydiagold = val.rubydiagold?.value || {};
+        
         res.json({
             success: true,
             gichapo: gichapo,
@@ -274,17 +279,12 @@ app.post('/get-user-data', async (req, res) => {
             magic: rubydiagold.MAGIC || 0
         });
     } catch (e) {
-        // TRẢ VỀ DỮ LIỆU MẶC ĐỊNH KHI LỖI
-        res.json({
-            success: true,
-            gichapo: "선택된서버:베트남서버 ping:67ms",
-            userName: "User",
-            magic: 0
-        });
+        console.error('❌ GET USER DATA ERROR:', e.message);
+        res.json({ success: false, error: e.message });
     }
 });
 
-// ===== API HACK MAGIC =====
+// ===== API HACK MAGIC (SERVER XỬ LÝ) =====
 app.post('/hack-magic', async (req, res) => {
     const { key, hwid, platform, uniq_id, host_id, gichapo, hackCount } = req.body;
     const db = loadDB();
@@ -354,8 +354,7 @@ app.post('/hack-magic', async (req, res) => {
             magic_received: totalMagicReceived,
             remaining: keyData.remaining,
             used: keyData.usedUses,
-            total: keyData.totalUses,
-            maxPerSession: MAX_HACK_PER_SESSION
+            total: keyData.totalUses
         }
     });
 });
@@ -369,6 +368,4 @@ app.listen(PORT, '0.0.0.0', () => {
     console.log('  POST /disable-key, POST /enable-key, POST /delete-key');
     console.log('  POST /get-user-data, POST /hack-magic');
     console.log(`\n🔒 GIỚI HẠN HACK: ${MAX_HACK_PER_SESSION} lần mỗi lượt`);
-    console.log('🔄 KEY TỰ ĐỘNG TẠO KHI KHÔNG TỒN TẠI');
-    console.log('🔄 GET-USER-DATA TRẢ VỀ DỮ LIỆU MẶC ĐỊNH KHI LỖI');
 });
