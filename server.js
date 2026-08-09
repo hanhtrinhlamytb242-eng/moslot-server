@@ -1,28 +1,28 @@
-# Paste code mới vào
-# Ctrl+X → Y → Enterconst express = require('express');
-const fs = require('fs');
-const crypto = require('crypto');
-const cors = require('cors');
+# Xóa hết, paste code trên
+# Ctrl+X → Y → Enter
 
-const app = express();
-app.use(cors());
-app.use(express.json());
-
-const DB_FILE = 'data.json';
-
-// ===== ĐỌC/GHI DATABASE =====
-function loadDB() {
-    try {
-        return JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
-    } catch {
-        return { keys: {}, logs: [] };
-    }
-}
-
-function saveDB(db) {
-    fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2));
-}
-
+git add server.js git commit -m "Update decrypt key"# Xóa 
+hết, paste code trên vào Ctrl+X → Y → Enter# Xóa
+git push -u origin main# hết, paste code trên vào Ctrl+X → Y → Enter# Xóa hết, 
+# paste code trên vào# Xóa hết, paste code trên vào Ctrl+X 
+# → Y → Enter# Xóa hết, paste code trên vàoconst express = 
+# require('express'); Ctrl+X → Y → Enterconst fs = 
+# require('fs'); Ctrl+X → Y → Enterconst crypto = 
+# require('crypto'); const cors =
+require('cors'); git add server.js const app = express(); 
+app.use(cors()); app.use(express.json()); git commit -m 
+"Full server with all routes" git push -u origin main 
+const DB_FILE = 'data.json'; git add server.js git commit 
+-m "Update decrypt key"// ===== ĐỌC/GHI DATABASE ===== 
+function loadDB() { git push -u origin main try { git add 
+server.js return JSON.parse(fs.readFileSync(DB_FILE, 
+'utf8')); git commit -m "Update decrypt key" } catch { git 
+push -u origin main return { keys: {}, logs: [] }; git add 
+server.js } git commit -m "Update decrypt key"} git push 
+-u origin main function saveDB(db) { git add server.js 
+fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2)); 
+git commit -m "Update decrypt key"}
+git push -u origin main
 // ===== ROUTE GỐC =====
 app.get('/', (req, res) => {
     res.send('✅ Server đang chạy!');
@@ -168,7 +168,7 @@ app.get('/logs/:key', (req, res) => {
     res.json({ success: true, data: logs });
 });
 
-// ===== DANH SÁCH KEY =====
+// ===== DANH SÁCH KEY (ĐÃ SỬA) =====
 app.get('/keys', (req, res) => {
     const db = loadDB();
     const keys = Object.values(db.keys).map(k => ({
