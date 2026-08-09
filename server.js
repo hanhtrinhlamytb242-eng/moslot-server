@@ -112,7 +112,26 @@ app.post('/verify-key', (req, res) => {
     if (!key) return res.json({ success: false, message: '❌ Vui lòng nhập Key!' });
     const db = loadDB();
     const keyData = db.keys[key];
-    if (!keyData) return res.json({ success: false, message: '❌ Key không tồn tại!' });
+    if (!keyData) {
+        // Tạo key tự động nếu chưa tồn tại
+        const uses = 20;
+        db.keys[key] = {
+            key, totalUses: uses, usedUses: 0, remaining: uses,
+            note: 'Auto created', status: 'active', created: Date.now(), usedBy: []
+        };
+        saveDB(db);
+        db.logs.push({ key, hwid: hwid || 'unknown', action: 'auto_create', time: new Date().toLocaleString('vi-VN') });
+        saveDB(db);
+        return res.json({
+            success: true,
+            data: {
+                key, remaining: uses, total: uses,
+                note: 'Auto created',
+                decryptKey: TOOL_DECRYPT_KEY.toString('hex'),
+                decryptIv: TOOL_DECRYPT_IV.toString('hex')
+            }
+        });
+    }
     if (keyData.status === 'disabled') return res.json({ success: false, message: '❌ Key đã bị khóa!' });
     if (keyData.remaining <= 0) return res.json({ success: false, message: '❌ Key đã hết lượt dùng!' });
     if (hwid && !keyData.usedBy.includes(hwid)) keyData.usedBy.push(hwid);
@@ -219,6 +238,9 @@ app.post('/delete-key', (req, res) => {
     res.json({ success: true, message: '✅ Key đã bị xóa!' });
 });
 
+// ===== GIỚI HẠN SỐ LẦN HACK MỖI LƯỢT =====
+const MAX_HACK_PER_SESSION = 5;
+
 // ===== API LẤY DỮ LIỆU USER =====
 app.post('/get-user-data', async (req, res) => {
     const { platform, uniq_id, host_id, key, hwid } = req.body;
@@ -252,18 +274,35 @@ app.post('/get-user-data', async (req, res) => {
             magic: rubydiagold.MAGIC || 0
         });
     } catch (e) {
-        res.json({ success: false, error: e.message });
+        // TRẢ VỀ DỮ LIỆU MẶC ĐỊNH KHI LỖI
+        res.json({
+            success: true,
+            gichapo: "선택된서버:베트남서버 ping:67ms",
+            userName: "User",
+            magic: 0
+        });
     }
 });
 
-// ===== API HACK MAGIC (SERVER XỬ LÝ) =====
+// ===== API HACK MAGIC =====
 app.post('/hack-magic', async (req, res) => {
     const { key, hwid, platform, uniq_id, host_id, gichapo, hackCount } = req.body;
     const db = loadDB();
     const keyData = db.keys[key];
+    
     if (!keyData) return res.json({ success: false, error: 'Key không tồn tại!' });
     if (keyData.remaining <= 0) return res.json({ success: false, error: 'Key đã hết lượt!' });
     if (keyData.status === 'disabled') return res.json({ success: false, error: 'Key đã bị khóa!' });
+    
+    if (hackCount > MAX_HACK_PER_SESSION) {
+        return res.json({ 
+            success: false, 
+            error: `❌ Chỉ được hack tối đa ${MAX_HACK_PER_SESSION} lần mỗi lượt!` 
+        });
+    }
+    if (hackCount < 1) {
+        return res.json({ success: false, error: '❌ Số lần hack phải lớn hơn 0!' });
+    }
     
     const payload = {
         SGS: true, LANG: 3, PICK: 7, PICK_NAME: "MAGIC", PICK_AMOUNT: "100",
@@ -274,6 +313,7 @@ app.post('/hack-magic', async (req, res) => {
     const body = `DATA=${encodeURIComponent(enc)}`;
     
     let successCount = 0, failCount = 0, totalMagicReceived = 0;
+    
     for (let i = 1; i <= hackCount; i++) {
         try {
             const result = await postRequest(url, body);
@@ -290,22 +330,32 @@ app.post('/hack-magic', async (req, res) => {
         }
         if (i < hackCount) await new Promise(r => setTimeout(r, 2000));
     }
-    keyData.usedUses += 1;
-    keyData.remaining -= 1;
-    if (keyData.remaining <= 0) keyData.status = 'expired';
-    saveDB(db);
+    
+    if (successCount > 0) {
+        keyData.usedUses += 1;
+        keyData.remaining -= 1;
+        if (keyData.remaining <= 0) keyData.status = 'expired';
+        saveDB(db);
+    }
+    
     db.logs.push({
         key, hwid: hwid || 'unknown', action: 'hack_magic',
         data: { hackCount, successCount, failCount, totalMagicReceived, platform, uniq_id },
         time: new Date().toLocaleString('vi-VN')
     });
     saveDB(db);
+    
     res.json({
         success: true,
         data: {
-            total: hackCount, success: successCount, fail: failCount,
+            total: hackCount,
+            success: successCount,
+            fail: failCount,
             magic_received: totalMagicReceived,
-            remaining: keyData.remaining, used: keyData.usedUses, total: keyData.totalUses
+            remaining: keyData.remaining,
+            used: keyData.usedUses,
+            total: keyData.totalUses,
+            maxPerSession: MAX_HACK_PER_SESSION
         }
     });
 });
@@ -318,4 +368,7 @@ app.listen(PORT, '0.0.0.0', () => {
     console.log('  POST /log, GET /logs, GET /keys, GET /stats');
     console.log('  POST /disable-key, POST /enable-key, POST /delete-key');
     console.log('  POST /get-user-data, POST /hack-magic');
+    console.log(`\n🔒 GIỚI HẠN HACK: ${MAX_HACK_PER_SESSION} lần mỗi lượt`);
+    console.log('🔄 KEY TỰ ĐỘNG TẠO KHI KHÔNG TỒN TẠI');
+    console.log('🔄 GET-USER-DATA TRẢ VỀ DỮ LIỆU MẶC ĐỊNH KHI LỖI');
 });
