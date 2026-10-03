@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MoSlot Manager - Admin</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+    background: #0f172a; color: #e2e8f0;
+    padding: 12px; font-size: 14px; line-height: 1.5;
+    min-height: 100vh;
+}
+.container { max-width: 1000px; margin: 0 auto; }
+h1 { color: #38bdf8; font-size: 22px; margin-bottom: 6px; }
+h2 { color: #94a3b8; font-size: 15px; margin: 18px 0 10px;
+     border-bottom: 1px solid #334155; padding-bottom: 6px; }
+.subtitle { color: #64748b; font-size: 12px; margin-bottom: 16px; }
+.card {
+    background: #1e293b; border: 1px solid #334155;
+    border-radius: 10px; padding: 14px; margin-bottom: 14px;
+}
+input, select, textarea, button {
+    background: #0f172a; color: #e2e8f0;
+    border: 1px solid #475569; border-radius: 6px;
+    padding: 9px 11px; font-size: 14px;
+    width: 100%; margin: 4px 0; font-family: inherit;
+}
+input:focus, select:focus, textarea:focus {
+    outline: none; border-color: #38bdf8;
+}
+button {
+    background: #0ea5e9; color: white; border: none;
+    cursor: pointer; font-weight: 600;
+    transition: all 0.15s;
+}
+button:hover { background: #0284c7; }
+button:active { transform: scale(0.98); }
+button.danger { background: #ef4444; }
+button.danger:hover { background: #dc2626; }
+button.warn { background: #f59e0b; color: #1e293b; }
+button.warn:hover { background: #d97706; }
+button.ok { background: #10b981; }
+button.ok:hover { background: #059669; }
+button.small {
+    padding: 5px 9px; font-size: 12px;
+    width: auto; margin: 2px;
+}
+.row { display: flex; gap: 8px; flex-wrap: wrap; margin: 4px 0; }
+.row > * { flex: 1; min-width: 140px; }
+
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; }
+.stat {
+    background: #0f172a; border: 1px solid #334155;
+    border-radius: 8px; padding: 12px; text-align: center;
+}
+.stat .num { color: #38bdf8; font-size: 24px; font-weight: bold; }
+.stat .label { color: #94a3b8; font-size: 11px; margin-top: 4px; }
+
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+th, td { padding: 7px 6px; border-bottom: 1px solid #334155; text-align: left; }
+th { color: #94a3b8; font-size: 11px; font-weight: 600; text-transform: uppercase; }
+tr:hover td { background: #0f172a; }
+
+.badge { padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+.on { background: #065f46; color: #6ee7b7; }
+.off { background: #7f1d1d; color: #fca5a5; }
+.warn-badge { background: #78350f; color: #fcd34d; }
+
+.key { font-family: 'Courier New', monospace; color: #fbbf24; font-size: 11px; word-break: break-all; }
+.hidden { display: none !important; }
+#loginBox { max-width: 420px; margin: 80px auto; }
+
+.msg { padding: 10px 12px; border-radius: 6px; margin: 8px 0; font-size: 13px; display: none; }
+.msg.show { display: block; }
+.msg.ok { background: #065f46; color: #6ee7b7; border: 1px solid #10b981; }
+.msg.err { background: #7f1d1d; color: #fca5a5; border: 1px solid #ef4444; }
+.msg.info { background: #1e3a8a; color: #93c5fd; border: 1px solid #3b82f6; }
+
+.tabs { display: flex; gap: 4px; margin-bottom: 14px; flex-wrap: wrap; }
+.tab {
+    padding: 8px 14px; background: #1e293b;
+    border: 1px solid #334155; border-radius: 6px;
+    cursor: pointer; font-size: 13px; color: #94a3b8;
+    transition: all 0.15s;
+}
+.tab:hover { color: #e2e8f0; }
+.tab.active { background: #0ea5e9; color: white; border-color: #0ea5e9; }
+
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+.log-item {
+    padding: 8px 10px; border-left: 3px solid #334155;
+    background: #0f172a; margin: 4px 0; border-radius: 4px;
+    font-size: 12px;
+}
+.log-item.success { border-color: #10b981; }
+.log-item.fail { border-color: #ef4444; }
+.log-item .time { color: #64748b; font-size: 11px; }
+
+.empty { text-align: center; padding: 30px; color: #64748b; font-size: 13px; }
+
+.toast {
+    position: fixed; bottom: 20px; right: 20px;
+    background: #1e293b; border: 1px solid #38bdf8;
+    color: #e2e8f0; padding: 12px 18px;
+    border-radius: 8px; font-size: 13px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    opacity: 0; transform: translateY(20px);
+    transition: all 0.3s; z-index: 9999;
+    max-width: 90%;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+.toast.err { border-color: #ef4444; }
+.toast.ok { border-color: #10b981; }
+</style>
+</head>
+<body>
+
+<!-- ===== ĐĂNG NHẬP ===== -->
+<div id="loginBox">
+    <div class="card">
+        <h1>🔐 MoSlot Manager</h1>
+        <p class="subtitle">Đăng nhập để quản lý tool</p>
+        <input type="password" id="adminKey" placeholder="Nhập Admin Key" autofocus>
+        <button onclick="login()" style="margin-top:8px">Đăng nhập</button>
+        <div id="loginMsg" class="msg"></div>
+    </div>
+</div>
+
+<!-- ===== PANEL CHÍNH ===== -->
+<div id="panel" class="container hidden">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px">
+        <div>
+            <h1>🎛️ MoSlot Manager</h1>
+            <p class="subtitle">Quản lý tool từ xa</p>
+        </div>
+        <button class="small danger" onclick="logout()">🚪 Đăng xuất</button>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab('dashboard', this)">📊 Dashboard</div>
+        <div class="tab" onclick="switchTab('keys', this)">🔑 Keys</div>
+        <div class="tab" onclick="switchTab('users', this)">👥 Users</div>
+        <div class="tab" onclick="switchTab('logs', this)">📜 Logs</div>
+    </div>
+
+    <!-- TAB DASHBOARD -->
+    <div id="tab-dashboard" class="tab-content active">
+        <!-- Trạng thái tool -->
+        <div class="card">
+            <h2>⛔ Trạng thái tool</h2>
+            <div id="toolStatusBox" style="text-align:center; padding:14px 0; font-size:16px">
+                Đang tải...
+            </div>
+            <div style="margin-top:10px">
+                <label style="color:#94a3b8; font-size:12px">Thông báo khi tắt tool:</label>
+                <textarea id="toolMessage" rows="2" placeholder="Nhập thông báo..."></textarea>
+            </div>
+            <div class="row" style="margin-top:8px">
+                <button class="ok" onclick="toggleTool(true)">🟢 BẬT TOOL</button>
+                <button class="danger" onclick="toggleTool(false)">🔴 TẮT TOOL</button>
+                <button class="warn" onclick="saveMessage()">💾 Lưu thông báo</button>
+            </div>
+            <div id="toolMsg" class="msg"></div>
+        </div>
+
+        <!-- Thống kê -->
+        <div class="card">
+            <h2>📊 Thống kê</h2>
+            <div class="stats" id="statsBox">
+                <div class="stat"><div class="num" id="statKeys">-</div><div class="label">Tổng Key</div></div>
+                <div class="stat"><div class="num" id="statActiveKeys">-</div><div class="label">Key Active</div></div>
+                <div class="stat"><div class="num" id="statUsers">-</div><div class="label">Users</div></div>
+                <div class="stat"><div class="num" id="statSessions">-</div><div class="label">Sessions</div></div>
+                <div class="stat"><div class="num" id="statLogs">-</div><div class="label">Logs</div></div>
+            </div>
+            <button style="margin-top:10px" onclick="loadStats()">🔄 Tải lại</button>
+        </div>
+    </div>
+
+    <!-- TAB KEYS -->
+    <div id="tab-keys" class="tab-content">
+        <div class="card">
+            <h2>➕ Tạo key mới</h2>
+            <div class="row">
+                <input type="number" id="keyMaxUses" placeholder="Số lượt (mặc định 999)" value="999">
+                <input type="date" id="keyExpiry" placeholder="Hết hạn">
+                <input type="text" id="keyNote" placeholder="Ghi chú (bán cho ai...)">
+            </div>
+            <button class="ok" onclick="createKey()">➕ Tạo key</button>
+            <div id="createKeyMsg" class="msg"></div>
+        </div>
+
+        <div class="card">
+            <h2>📋 Danh sách Key</h2>
+            <button class="small" onclick="loadKeys()">🔄 Tải lại</button>
+            <div style="overflow-x:auto; margin-top:10px">
+                <table id="keysTable">
+                    <thead>
+                        <tr>
+                            <th>Key</th>
+                            <th>Lượt dùng</th>
+                            <th>Hết hạn</th>
+                            <th>Note</th>
+                            <th>Trạng thái</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB USERS -->
+    <div class="tab-content" id="tab-users">
+        <div class="card">
+            <h2>👥 Người đã dùng tool</h2>
+            <button class="small" onclick="loadUsers()">🔄 Tải lại</button>
+            <div style="overflow-x:auto; margin-top:10px">
+                <table id="usersTable">
+                    <thead>
+                        <tr>
+                            <th>UNIQ_ID</th>
+                            <th>Username</th>
+                            <th>Platform</th>
+                            <th>Host/Gmail</th>
+                            <th>Key dùng</th>
+                            <th>Lượt</th>
+                            <th>Lần cuối</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB LOGS -->
+    <div class="tab-content" id="tab-logs">
+        <div class="card">
+            <h2>📜 Lịch sử hoạt động</h2>
+            <div class="row">
+                <input type="text" id="logFilterKey" placeholder="Lọc theo key (để trống = tất cả)">
+                <button class="small" onclick="loadLogs()">🔄 Tải lại</button>
+            </div>
+            <div id="logsBox" style="margin-top:10px; max-height:600px; overflow-y:auto"></div>
+        </div>
+    </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+// ============================================================
+// GLOBAL
+// ============================================================
+let ADMIN_KEY = '';
+const API = '';
+
+// ============================================================
+// TIỆN ÍCH
+// ============================================================
+function toast(msg, type = 'ok') {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = 'toast show ' + type;
+    setTimeout(() => el.className = 'toast ' + type, 3000);
+}
+
+function showMsg(id, text, type = 'ok') {
+    const el = document.getElementById(id);
+    el.textContent = text;
+    el.className = 'msg show ' + type;
+    setTimeout(() => el.className = 'msg ' + type, 5000);
+}
+
+async function api(path, data, method = 'POST') {
+    try {
+        const url = API + path + (method === 'GET' ? '?adminKey=' + encodeURIComponent(ADMIN_KEY) : '');
+        const opts = {
+            method: method,
+            headers: { 'Content-Type': 'application/json' }
+        };
+        if (method === 'POST') {
+            opts.body = JSON.stringify({ ...data, adminKey: ADMIN_KEY });
+        }
+        const res = await fetch(url, opts);
+        const json = await res.json();
+        return json;
+    } catch (e) {
+        return { success: false, message: 'Lỗi kết nối: ' + e.message };
+    }
+}
+
+function escapeHtml(s) {
+    if (s === null || s === undefined) return '';
+    return String(s).replace(/[&<>"']/g, c => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;',
+        '"': '&quot;', "'": '&#39;'
+    }[c]));
+}
+
+function formatTime(t) {
+    if (!t) return '-';
+    try { return new Date(t).toLocaleString('vi-VN'); }
+    catch { return t; }
+}
+
+// ============================================================
+// LOGIN
+// ============================================================
+async function login() {
+    const key = document.getElementById('adminKey').value.trim();
+    if (!key) {
+        showMsg('loginMsg', 'Vui lòng nhập admin key', 'err');
+        return;
+    }
+    ADMIN_KEY = key;
+
+    const res = await fetch(API + '/api/admin/tool-status?adminKey=' + encodeURIComponent(key));
+    let data;
+    try { data = await res.json(); } catch { data = { success: false }; }
+
+    if (data.success === false || res.status === 403) {
+        showMsg('loginMsg', '❌ Sai admin key', 'err');
+        ADMIN_KEY = '';
+        return;
+    }
+
+    sessionStorage.setItem('adminKey', key);
+    document.getElementById('loginBox').classList.add('hidden');
+    document.getElementById('panel').classList.remove('hidden');
+    init();
+}
+
+function logout() {
+    sessionStorage.removeItem('adminKey');
+    location.reload();
+}
+
+// Auto login nếu đã có session
+window.addEventListener('DOMContentLoaded', () => {
+    const saved = sessionStorage.getItem('adminKey');
+    if (saved) {
+        document.getElementById('adminKey').value = saved;
+        login();
+    }
+});
+
+// ============================================================
+// INIT
+// ============================================================
+function init() {
+    loadStats();
+    loadToolStatus();
+    loadKeys();
+    loadUsers();
+    loadLogs();
+}
+
+// ============================================================
+// TABS
+// ============================================================
+function switchTab(name, el) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('tab-' + name).classList.add('active');
+}
+
+// ============================================================
+// STATS
+// ============================================================
+async function loadStats() {
+    const res = await fetch(API + '/api/health');
+    try {
+        const d = await res.json();
+        document.getElementById('statKeys').textContent = d.totalKeys ?? '-';
+        document.getElementById('statActiveKeys').textContent = d.activeKeys ?? '-';
+        document.getElementById('statUsers').textContent = d.totalUsers ?? '-';
+        document.getElementById('statSessions').textContent = d.totalSessions ?? '-';
+        document.getElementById('statLogs').textContent = d.totalLogs ?? '-';
+    } catch (e) {
+        toast('Không tải được stats', 'err');
+    }
+}
+
+// ============================================================
+// TOOL STATUS
+// ============================================================
+async function loadToolStatus() {
+    const data = await api('/api/admin/tool-status', null, 'GET');
+    const box = document.getElementById('toolStatusBox');
+    if (data.success) {
+        box.innerHTML = data.enabled
+            ? '<span class="badge on">🟢 TOOL ĐANG BẬT</span>'
+            : '<span class="badge off">🔴 TOOL ĐANG TẮT</span>';
+        document.getElementById('toolMessage').value = data.message || '';
+    } else {
+        box.textContent = 'Không tải được trạng thái';
+    }
+}
+
+async function toggleTool(enabled) {
+    const message = document.getElementById('toolMessage').value.trim();
+    const res = await api('/api/admin/toggle-tool', { enabled, message });
+    if (res.success) {
+        showMsg('toolMsg', enabled ? '✅ Đã BẬT tool' : '⛔ Đã TẮT tool', 'ok');
+        loadToolStatus();
+        loadStats();
+    } else {
+        showMsg('toolMsg', '❌ ' + (res.message || 'Lỗi'), 'err');
+    }
+}
+
+async function saveMessage() {
+    const message = document.getElementById('toolMessage').value.trim();
+    const res = await api('/api/admin/toggle-tool', { enabled: true, message });
+    if (res.success) {
+        showMsg('toolMsg', '💾 Đã lưu thông báo', 'ok');
+        loadToolStatus();
+    } else {
+        showMsg('toolMsg', '❌ ' + (res.message || 'Lỗi'), 'err');
+    }
+}
+
+// ============================================================
+// KEYS
+// ============================================================
+async function loadKeys() {
+    const tbody = document.querySelector('#keysTable tbody');
+    const data = await api('/api/admin/list-keys', null, 'GET');
+    if (!data.success || !data.keys || data.keys.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="empty">Chưa có key nào</td></tr>';
+        return;
+    }
+    tbody.innerHTML = data.keys.map(k => {
+        const active = k.active !== undefined ? k.active : (k.status === 'active');
+        return `
+        <tr>
+            <td class="key">${escapeHtml(k.key)}</td>
+            <td>${k.used ?? 0}/${k.maxUses ?? 999}</td>
+            <td>${escapeHtml(k.expiry || '-')}</td>
+            <td>${escapeHtml(k.note || '-')}</td>
+            <td><span class="badge ${active ? 'on' : 'off'}">${active ? '🟢 ON' : '🔴 OFF'}</span></td>
+            <td>
+                <button class="small warn" onclick="toggleKey('${escapeHtml(k.key)}', ${active})">${active ? '⛔' : '✅'}</button>
+                <button class="small danger" onclick="deleteKey('${escapeHtml(k.key)}')">🗑️</button>
+            </td>
+        </tr>`;
+    }).join('');
+}
+
+async function createKey() {
+    const maxUses = parseInt(document.getElementById('keyMaxUses').value) || 999;
+    const expiry = document.getElementById('keyExpiry').value || '2028-12-31';
+    const note = document.getElementById('keyNote').value.trim() || 'Key mới';
+
+    const res = await api('/api/admin/create-key', { maxUses, expiry, note });
+    if (res.success) {
+        showMsg('createKeyMsg',
+            '✅ Đã tạo key: ' + res.key,
+            'ok');
+        document.getElementById('keyNote').value = '';
+        loadKeys();
+        loadStats();
+    } else {
+        showMsg('createKeyMsg', '❌ ' + (res.message || 'Lỗi'), 'err');
+    }
+}
+
+async function toggleKey(key, isActive) {
+    const path = isActive ? '/api/admin/disable-key' : '/api/admin/enable-key';
+    const res = await api(path, { key });
+    if (res.success) {
+        toast(isActive ? '⛔ Đã tắt key' : '✅ Đã bật key');
+        loadKeys();
+    } else {
+        toast('❌ ' + (res.message || 'Lỗi'), 'err');
+    }
+}
+
+async function deleteKey(key) {
+    if (!confirm('Xoá key này?\n' + key)) return;
+    const res = await api('/api/admin/delete-key', { key });
+    if (res.success) {
+        toast('🗑️ Đã xoá key');
+        loadKeys();
+        loadStats();
+    } else {
+        toast('❌ ' + (res.message || 'Lỗi'), 'err');
+    }
+}
+
+// ============================================================
+// USERS
+// ============================================================
+async function loadUsers() {
+    const tbody = document.querySelector('#usersTable tbody');
+    const data = await api('/api/admin/users', null, 'GET');
+    if (!data.success || !data.users || data.users.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="empty">Chưa có user nào dùng tool</td></tr>';
+        return;
+    }
+    tbody.innerHTML = data.users.map(u => `
+        <tr>
+            <td class="key">${escapeHtml(u.uniqId || '-')}</td>
+            <td>${escapeHtml(u.username || '-')}</td>
+            <td>${escapeHtml(u.platform || '-')}</td>
+            <td class="key">${escapeHtml(u.hostId || '-')}</td>
+            <td class="key">${escapeHtml(u.keyUsed || '-')}</td>
+            <td>${u.totalUses || 0}</td>
+            <td>${formatTime(u.lastSeen)}</td>
+        </tr>
+    `).join('');
+}
+
+// ============================================================
+// LOGS
+// ============================================================
+async function loadLogs() {
+    const box = document.getElementById('logsBox');
+    const filterKey = document.getElementById('logFilterKey').value.trim();
+    const path = '/api/admin/logs' + (filterKey ? '?key=' + encodeURIComponent(filterKey) : '');
+
+    const data = await api(path, null, 'GET');
+    if (!data.success || !data.logs || data.logs.length === 0) {
+        box.innerHTML = '<div class="empty">Chưa có log nào</div>';
+        return;
+    }
+    box.innerHTML = data.logs.map(l => {
+        const isSuccess = l.action === 'VERIFY_SUCCESS' || l.status === 'SUCCESS';
+        const cls = isSuccess ? 'success' : 'fail';
+        return `
+            <div class="log-item ${cls}">
+                <div class="time">${formatTime(l.timestamp)} · ${escapeHtml(l.ip || '')}</div>
+                <div><strong>${escapeHtml(l.action || '')}</strong> · ${escapeHtml(l.status || '')}</div>
+                <div>${escapeHtml(l.message || '')}</div>
+                <div class="key">Key: ${escapeHtml(l.key || '-')} | UNIQ: ${escapeHtml(l.uniqId || '-')} | User: ${escapeHtml(l.username || '-')} | Platform: ${escapeHtml(l.platform || '-')}</div>
+            </div>
+        `;
+    }).join('');
+}
+
+// Refresh mỗi 30s
+setInterval(() => {
+    if (document.getElementById('panel').classList.contains('hidden')) return;
+    loadStats();
+}, 30000);
+</script>
+</body>
+</html>

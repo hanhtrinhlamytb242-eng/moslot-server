@@ -1,0 +1,7 @@
+node_modules/
+data.json
+.env
+*.log
+*.backup
+*.backup2
+public/*.log

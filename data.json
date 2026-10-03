@@ -1,15 +1,386 @@
 {
   "keys": {
-    "AOG-HOE-KPG-1001": {
-      "key": "AOG-HOE-KPG-1001",
-      "totalUses": 20,
-      "usedUses": 0,
-      "remaining": 20,
-      "note": "Key test",
-      "status": "active",
-      "created": 1786254556935,
-      "usedBy": []
+    "KEY_1791029210112_A61A92A0": {
+      "type": "vip",
+      "expiry": "2028-12-31",
+      "maxUses": 10,
+      "used": 0,
+      "active": true,
+      "createdBy": "ADMIN",
+      "createdAt": "2026-10-03T12:06:50.113Z",
+      "note": "Test key"
+    },
+    "KEY_1791029298095_FFB6F2BA": {
+      "type": "vip",
+      "expiry": "2028-12-31",
+      "maxUses": 10,
+      "used": 0,
+      "active": true,
+      "createdBy": "ADMIN",
+      "createdAt": "2026-10-03T12:08:18.095Z",
+      "note": "Test key"
+    },
+    "KEY_1791029559154_78B72148": {
+      "type": "vip",
+      "expiry": "2028-12-31",
+      "maxUses": 5,
+      "used": 1,
+      "active": true,
+      "createdBy": "ADMIN",
+      "createdAt": "2026-10-03T12:12:39.156Z",
+      "note": "Key test tool"
+    },
+    "KEY_1791030314381_7F7D593B": {
+      "type": "vip",
+      "expiry": "2026-10-03",
+      "maxUses": 1,
+      "used": 0,
+      "active": true,
+      "createdBy": "ADMIN",
+      "createdAt": "2026-10-03T12:25:14.383Z",
+      "note": "nhớ my lắm"
+    },
+    "KEY_1791030314399_2DD256BB": {
+      "type": "vip",
+      "expiry": "2026-10-03",
+      "maxUses": 1,
+      "used": 0,
+      "active": true,
+      "createdBy": "ADMIN",
+      "createdAt": "2026-10-03T12:25:14.399Z",
+      "note": "nhớ my lắm"
+    },
+    "KEY_1791030314427_F78751C8": {
+      "type": "vip",
+      "expiry": "2026-10-03",
+      "maxUses": 1,
+      "used": 0,
+      "active": true,
+      "createdBy": "ADMIN",
+      "createdAt": "2026-10-03T12:25:14.427Z",
+      "note": "Aja"
+    },
+    "KEY_1791030446050_94312C44": {
+      "type": "vip",
+      "expiry": "2026-10-03",
+      "maxUses": 999,
+      "used": 0,
+      "active": true,
+      "createdBy": "ADMIN",
+      "createdAt": "2026-10-03T12:27:26.071Z",
+      "note": "Key mới"
     }
   },
-  "logs": []
+  "logs": [
+    {
+      "timestamp": "2026-10-03T12:06:50.113Z",
+      "key": "KEY_1791029210112_A61A92A0",
+      "action": "KEY_CREATED",
+      "username": "ADMIN",
+      "platform": "ADMIN",
+      "uniqId": "ADMIN",
+      "status": "SUCCESS",
+      "ip": "127.0.0.1",
+      "message": "Đã tạo key mới: KEY_1791029210112_A61A92A0"
+    },
+    {
+      "timestamp": "2026-10-03T12:07:00.267Z",
+      "key": "KEY_VUA_TAO",
+      "action": "VERIFY_FAILED",
+      "username": "TestUser",
+      "platform": "AMO",
+      "uniqId": "test_user_001",
+      "hostId": "test@gmail.com",
+      "status": "KEY_NOT_FOUND",
+      "ip": "127.0.0.1",
+      "message": "Key không tồn tại"
+    },
+    {
+      "timestamp": "2026-10-03T12:07:21.516Z",
+      "key": "KEY_1791029241516_6E6BF803",
+      "action": "KEY_CREATED",
+      "username": "ADMIN",
+      "platform": "ADMIN",
+      "uniqId": "ADMIN",
+      "status": "SUCCESS",
+      "ip": "127.0.0.1",
+      "message": "Đã tạo key mới: KEY_1791029241516_6E6BF803"
+    },
+    {
+      "timestamp": "2026-10-03T12:08:18.096Z",
+      "key": "KEY_1791029298095_FFB6F2BA",
+      "action": "KEY_CREATED",
+      "username": "ADMIN",
+      "platform": "ADMIN",
+      "uniqId": "ADMIN",
+      "status": "SUCCESS",
+      "ip": "127.0.0.1",
+      "message": "Đã tạo key mới: KEY_1791029298095_FFB6F2BA"
+    },
+    {
+      "timestamp": "2026-10-03T12:08:26.714Z",
+      "key": "KEY_VUA_TAO",
+      "action": "VERIFY_FAILED",
+      "username": "TestUser",
+      "platform": "AMO",
+      "uniqId": "test_user_001",
+      "hostId": "test@gmail.com",
+      "status": "KEY_NOT_FOUND",
+      "ip": "127.0.0.1",
+      "message": "Key không tồn tại"
+    },
+    {
+      "timestamp": "2026-10-03T12:09:13.463Z",
+      "key": "KEY_1791029241516_6E6BF803",
+      "action": "VERIFY_SUCCESS",
+      "username": "TestUser",
+      "platform": "AMO",
+      "uniqId": "test_user_001",
+      "hostId": "test@gmail.com",
+      "status": "SUCCESS",
+      "ip": "127.0.0.1",
+      "sessionToken": "da7daf6808408ede4dd5e4f48a1cd8902ea7edca3eb470081da844101425bbe9",
+      "message": "Xác thực thành công, còn 9 lượt"
+    },
+    {
+      "timestamp": "2026-10-03T12:12:39.156Z",
+      "key": "KEY_1791029559154_78B72148",
+      "action": "KEY_CREATED",
+      "username": "ADMIN",
+      "platform": "ADMIN",
+      "uniqId": "ADMIN",
+      "status": "SUCCESS",
+      "ip": "127.0.0.1",
+      "message": "Đã tạo key mới: KEY_1791029559154_78B72148"
+    },
+    {
+      "timestamp": "2026-10-03T12:14:20.358Z",
+      "key": "KEY_1791029559154_78B72148",
+      "action": "VERIFY_SUCCESS",
+      "username": "sao lai rung dong voi my nua roi",
+      "platform": "AMO",
+      "uniqId": "TDM566586mYd",
+      "hostId": "truongnhat1608vip@gmail.com",
+      "status": "SUCCESS",
+      "ip": "127.0.0.1",
+      "sessionToken": "b851a28e57bf5325856a5cff241077b9a9880d5ec0345c435838cf384bdb5ef8",
+      "message": "Xác thực thành công, còn 4 lượt"
+    },
+    {
+      "timestamp": "2026-10-03T12:14:52.070Z",
+      "key": "eoaooqao",
+      "action": "VERIFY_FAILED",
+      "username": "sao lai rung dong voi my nua roi",
+      "platform": "AMO",
+      "uniqId": "TDM566586mYd",
+      "hostId": "truongnhat1608vip@gmail.com",
+      "status": "KEY_NOT_FOUND",
+      "ip": "127.0.0.1",
+      "message": "Key không tồn tại"
+    },
+    {
+      "timestamp": "2026-10-03T12:16:07.508Z",
+      "key": "SYSTEM",
+      "action": "TOOL_DISABLED",
+      "username": "ADMIN",
+      "platform": "ADMIN",
+      "uniqId": "ADMIN",
+      "status": "SUCCESS",
+      "ip": "127.0.0.1",
+      "message": "Đã TẮT tool"
+    },
+    {
+      "timestamp": "2026-10-03T12:16:40.293Z",
+      "key": "SYSTEM",
+      "action": "TOOL_ENABLED",
+      "username": "ADMIN",
+      "platform": "ADMIN",
+      "uniqId": "ADMIN",
+      "status": "SUCCESS",
+      "ip": "127.0.0.1",
+      "message": "Đã BẬT tool"
+    },
+    {
+      "timestamp": "2026-10-03T12:22:51.100Z",
+      "key": "SYSTEM",
+      "action": "TOOL_DISABLED",
+      "username": "ADMIN",
+      "platform": "ADMIN",
+      "uniqId": "ADMIN",
+      "status": "SUCCESS",
+      "ip": "127.0.0.1",
+      "message": "Đã TẮT tool"
+    },
+    {
+      "timestamp": "2026-10-03T12:22:51.108Z",
+      "key": "SYSTEM",
+      "action": "TOOL_DISABLED",
+      "username": "ADMIN",
+      "platform": "ADMIN",
+      "uniqId": "ADMIN",
+      "status": "SUCCESS",
+      "ip": "127.0.0.1",
+      "message": "Đã TẮT tool"
+    },
+    {
+      "timestamp": "2026-10-03T12:22:51.132Z",
+      "key": "KEY_1791029241516_6E6BF803",
+      "action": "KEY_DELETED",
+      "username": "ADMIN",
+      "platform": "ADMIN",
+      "uniqId": "ADMIN",
+      "status": "SUCCESS",
+      "ip": "127.0.0.1",
+      "message": "Đã xóa key: KEY_1791029241516_6E6BF803"
+    },
+    {
+      "timestamp": "2026-10-03T12:22:51.197Z",
+      "key": "SYSTEM",
+      "action": "TOOL_ENABLED",
+      "username": "ADMIN",
+      "platform": "ADMIN",
+      "uniqId": "ADMIN",
+      "status": "SUCCESS",
+      "ip": "127.0.0.1",
+      "message": "Đã BẬT tool"
+    },
+    {
+      "timestamp": "2026-10-03T12:22:51.217Z",
+      "key": "SYSTEM",
+      "action": "TOOL_ENABLED",
+      "username": "ADMIN",
+      "platform": "ADMIN",
+      "uniqId": "ADMIN",
+      "status": "SUCCESS",
+      "ip": "127.0.0.1",
+      "message": "Đã BẬT tool"
+    },
+    {
+      "timestamp": "2026-10-03T12:22:51.226Z",
+      "key": "SYSTEM",
+      "action": "TOOL_DISABLED",
+      "username": "ADMIN",
+      "platform": "ADMIN",
+      "uniqId": "ADMIN",
+      "status": "SUCCESS",
+      "ip": "127.0.0.1",
+      "message": "Đã TẮT tool"
+    },
+    {
+      "timestamp": "2026-10-03T12:23:06.440Z",
+      "key": "SYSTEM",
+      "action": "TOOL_ENABLED",
+      "username": "ADMIN",
+      "platform": "ADMIN",
+      "uniqId": "ADMIN",
+      "status": "SUCCESS",
+      "ip": "127.0.0.1",
+      "message": "Đã BẬT tool"
+    },
+    {
+      "timestamp": "2026-10-03T12:23:17.784Z",
+      "key": "SYSTEM",
+      "action": "TOOL_DISABLED",
+      "username": "ADMIN",
+      "platform": "ADMIN",
+      "uniqId": "ADMIN",
+      "status": "SUCCESS",
+      "ip": "127.0.0.1",
+      "message": "Đã TẮT tool"
+    },
+    {
+      "timestamp": "2026-10-03T12:25:14.383Z",
+      "key": "KEY_1791030314381_7F7D593B",
+      "action": "KEY_CREATED",
+      "username": "ADMIN",
+      "platform": "ADMIN",
+      "uniqId": "ADMIN",
+      "status": "SUCCESS",
+      "ip": "127.0.0.1",
+      "message": "Đã tạo key mới: KEY_1791030314381_7F7D593B"
+    },
+    {
+      "timestamp": "2026-10-03T12:25:14.399Z",
+      "key": "KEY_1791030314399_2DD256BB",
+      "action": "KEY_CREATED",
+      "username": "ADMIN",
+      "platform": "ADMIN",
+      "uniqId": "ADMIN",
+      "status": "SUCCESS",
+      "ip": "127.0.0.1",
+      "message": "Đã tạo key mới: KEY_1791030314399_2DD256BB"
+    },
+    {
+      "timestamp": "2026-10-03T12:25:14.427Z",
+      "key": "KEY_1791030314427_F78751C8",
+      "action": "KEY_CREATED",
+      "username": "ADMIN",
+      "platform": "ADMIN",
+      "uniqId": "ADMIN",
+      "status": "SUCCESS",
+      "ip": "127.0.0.1",
+      "message": "Đã tạo key mới: KEY_1791030314427_F78751C8"
+    },
+    {
+      "timestamp": "2026-10-03T12:27:26.071Z",
+      "key": "KEY_1791030446050_94312C44",
+      "action": "KEY_CREATED",
+      "username": "ADMIN",
+      "platform": "ADMIN",
+      "uniqId": "ADMIN",
+      "status": "SUCCESS",
+      "ip": "127.0.0.1",
+      "message": "Đã tạo key mới: KEY_1791030446050_94312C44"
+    }
+  ],
+  "sessions": {
+    "da7daf6808408ede4dd5e4f48a1cd8902ea7edca3eb470081da844101425bbe9": {
+      "key": "KEY_1791029241516_6E6BF803",
+      "deviceId": "unknown",
+      "username": "TestUser",
+      "platform": "AMO",
+      "uniqId": "test_user_001",
+      "hostId": "test@gmail.com",
+      "connectedAt": "2026-10-03T12:09:13.463Z",
+      "lastActive": "2026-10-03T12:09:13.463Z",
+      "ip": "127.0.0.1"
+    },
+    "b851a28e57bf5325856a5cff241077b9a9880d5ec0345c435838cf384bdb5ef8": {
+      "key": "KEY_1791029559154_78B72148",
+      "deviceId": "3ed493393cca38ec",
+      "username": "sao lai rung dong voi my nua roi",
+      "platform": "AMO",
+      "uniqId": "TDM566586mYd",
+      "hostId": "truongnhat1608vip@gmail.com",
+      "connectedAt": "2026-10-03T12:14:20.358Z",
+      "lastActive": "2026-10-03T12:14:20.358Z",
+      "ip": "127.0.0.1"
+    }
+  },
+  "users": {
+    "test_user_001": {
+      "uniqId": "test_user_001",
+      "hostId": "test@gmail.com",
+      "username": "TestUser",
+      "platform": "AMO",
+      "keyUsed": "KEY_1791029241516_6E6BF803",
+      "firstSeen": "2026-10-03T12:09:13.463Z",
+      "lastSeen": "2026-10-03T12:09:13.463Z",
+      "totalUses": 1
+    },
+    "TDM566586mYd": {
+      "uniqId": "TDM566586mYd",
+      "hostId": "truongnhat1608vip@gmail.com",
+      "username": "sao lai rung dong voi my nua roi",
+      "platform": "AMO",
+      "keyUsed": "KEY_1791029559154_78B72148",
+      "firstSeen": "2026-10-03T12:14:20.358Z",
+      "lastSeen": "2026-10-03T12:14:20.358Z",
+      "totalUses": 1
+    }
+  },
+  "settings": {
+    "toolEnabled": false,
+    "message": "Tool đang bảo trì hệ thống, sẽ mở lại sau"
+  }
 }
