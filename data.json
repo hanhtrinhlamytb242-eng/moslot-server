@@ -18,7 +18,9 @@
       "active": true,
       "createdBy": "ADMIN",
       "createdAt": "2026-10-03T12:08:18.095Z",
-      "note": "Test key"
+      "note": "Test key",
+      "hwid": "def456uvw",
+      "firstUsedAt": "2026-10-04T05:28:59.817Z"
     },
     "KEY_1791029559154_78B72148": {
       "type": "vip",
@@ -79,6 +81,26 @@
       "createdBy": "ADMIN",
       "createdAt": "2026-10-04T03:58:35.059Z",
       "note": "Test v5"
+    },
+    "KEY_1791087972301_761BAC8D": {
+      "type": "vip",
+      "expiry": "2026-10-05",
+      "maxUses": 999,
+      "used": 0,
+      "active": true,
+      "createdBy": "ADMIN",
+      "createdAt": "2026-10-04T04:26:12.302Z",
+      "note": "Key mới"
+    },
+    "KEY_1791091600128_0ADA6A75": {
+      "type": "vip",
+      "expiry": "2028-12-31",
+      "maxUses": 5,
+      "used": 0,
+      "active": true,
+      "createdBy": "ADMIN",
+      "createdAt": "2026-10-04T05:26:40.129Z",
+      "note": "Test HWID"
     }
   },
   "logs": [
@@ -400,6 +422,127 @@
       "ip": "127.0.0.1",
       "sessionToken": "41eeb7e8bd9a29011cae842228e88a0215ab75723a7d50b7f18f54aa428c7238",
       "message": "Bắt đầu session. Còn 5 lượt"
+    },
+    {
+      "timestamp": "2026-10-04T04:26:12.302Z",
+      "key": "KEY_1791087972301_761BAC8D",
+      "action": "KEY_CREATED",
+      "username": "ADMIN",
+      "platform": "ADMIN",
+      "uniqId": "ADMIN",
+      "status": "SUCCESS",
+      "ip": "127.0.0.1",
+      "message": "Đã tạo key mới: KEY_1791087972301_761BAC8D"
+    },
+    {
+      "timestamp": "2026-10-04T05:26:40.130Z",
+      "key": "KEY_1791091600128_0ADA6A75",
+      "action": "KEY_CREATED",
+      "username": "ADMIN",
+      "platform": "ADMIN",
+      "uniqId": "ADMIN",
+      "status": "SUCCESS",
+      "ip": "127.0.0.1",
+      "message": "Đã tạo key mới: KEY_1791091600128_0ADA6A75"
+    },
+    {
+      "timestamp": "2026-10-04T05:27:18.108Z",
+      "key": "KEY_VUA_TAO",
+      "action": "START_FAILED",
+      "username": "unknown",
+      "platform": "AMO",
+      "uniqId": "TDM566586mYd",
+      "hostId": "truongnhat1608vip@gmail.com",
+      "status": "KEY_NOT_FOUND",
+      "ip": "127.0.0.1",
+      "message": "Key không tồn tại"
+    },
+    {
+      "timestamp": "2026-10-04T05:27:46.036Z",
+      "key": "KEY_1791091600128_0ADA6A7",
+      "action": "START_FAILED",
+      "username": "unknown",
+      "platform": "AMO",
+      "uniqId": "TDM566586mYd",
+      "hostId": "truongnhat1608vip@gmail.com",
+      "status": "KEY_NOT_FOUND",
+      "ip": "127.0.0.1",
+      "message": "Key không tồn tại"
+    },
+    {
+      "timestamp": "2026-10-04T05:28:10.365Z",
+      "key": "KEY_1791091600128_0ADA6A7",
+      "action": "START_FAILED",
+      "username": "unknown",
+      "platform": "AMO",
+      "uniqId": "TDM566586mYd",
+      "hostId": "truongnhat1608vip@gmail.com",
+      "status": "KEY_NOT_FOUND",
+      "ip": "127.0.0.1",
+      "message": "Key không tồn tại"
+    },
+    {
+      "timestamp": "2026-10-04T05:28:59.817Z",
+      "key": "KEY_1791029298095_FFB6F2BA",
+      "action": "START_FAILED",
+      "status": "GAME_API_ERROR",
+      "username": "unknown",
+      "platform": "AMO",
+      "uniqId": "TDM566586mYd",
+      "hostId": "truongnhat1608vip@gmail.com",
+      "ip": "127.0.0.1",
+      "message": "Lỗi gọi server game: Không giải mã được dữ liệu GET"
+    },
+    {
+      "timestamp": "2026-10-04T05:30:08.788Z",
+      "key": "KEY_1791029298095_FFB6F2BA",
+      "action": "START_SUCCESS",
+      "username": "sao lai rung dong voi my nua roi",
+      "platform": "AMO",
+      "uniqId": "TDM566586mYd",
+      "hostId": "truongnhat1608vip@gmail.com",
+      "status": "SUCCESS",
+      "ip": "127.0.0.1",
+      "sessionToken": "3aff2eebf7282765bd36b12dddafe749fec5bf1c84b8e26b4f79486be4061ca7",
+      "message": "Bắt đầu session. Còn 10 lượt"
+    },
+    {
+      "timestamp": "2026-10-04T05:30:28.381Z",
+      "key": "KEY_VUA_TAO",
+      "action": "START_FAILED",
+      "username": "unknown",
+      "platform": "AMO",
+      "uniqId": "TDM566586mYd",
+      "hostId": "truongnhat1608vip@gmail.com",
+      "status": "KEY_NOT_FOUND",
+      "ip": "127.0.0.1",
+      "message": "Key không tồn tại"
+    },
+    {
+      "timestamp": "2026-10-04T05:30:48.870Z",
+      "key": "KEY_1791029298095_FFB6F2BA",
+      "action": "START_SUCCESS",
+      "username": "sao lai rung dong voi my nua roi",
+      "platform": "AMO",
+      "uniqId": "TDM566586mYd",
+      "hostId": "truongnhat1608vip@gmail.com",
+      "status": "SUCCESS",
+      "ip": "127.0.0.1",
+      "sessionToken": "968e650b31f23387f9ccf6b3d2d83bb4961b1492ed03417e730afabe62e34194",
+      "message": "Bắt đầu session. Còn 10 lượt"
+    },
+    {
+      "timestamp": "2026-10-04T05:31:23.013Z",
+      "key": "KEY_1791029298095_FFB6F2BA",
+      "action": "START_SUCCESS",
+      "username": "sao lai rung dong voi my nua roi",
+      "platform": "AMO",
+      "uniqId": "TDM566586mYd",
+      "hostId": "truongnhat1608vip@gmail.com",
+      "status": "SUCCESS",
+      "ip": "127.0.0.1",
+      "sessionToken": "e3cead4ab150cedf0d37e7f9cc88704b02779ca30fb6cbdfea7d4b5808a984c3",
+      "message": "Bắt đầu session. Còn 10 lượt"
     }
   ],
   "sessions": {
@@ -442,6 +585,60 @@
         "selectedHeroMax": 5,
         "bouHero": "1:1:0:1,2:1:0:0,3:1:0:0,4:3:5400:0,5:3:5400:1,6:3:5400:1,7:1:0:0,8:1:0:0,9:1:0:0,10:1:0:0,11:1:0:0,12:1:0:0,13:1:0:0,14:1:0:0,15:1:0:0,16:1:0:0,17:1:0:0,18:1:0:0,19:1:0:0,20:1:0:0,21:1:0:0,22:1:0:0,23:1:0:0,24:1:0:0,25:1:0:0,26:1:0:0,27:1:0:0,28:1:0:0,29:1:0:0,30:1:0:0,31:1:0:0,32:1:0:0,33:1:0:0,34:1:0:0,35:1:0:0,36:1:0:0,37:51:0:0,38:51:0:0,39:51:0:0,40:51:0:0,41:51:0:0,42:51:0:0,43:1:0:0,44:1:0:0,45:1:0:0,46:51:0:0,47:51:0:0,48:51:0:0,49:51:0:0,50:51:0:0,51:51:0:0,52:51:0:0,53:51:0:0,54:51:0:0,55:51:0:0,56:51:0:0,57:51:0:0,58:51:0:0,59:51:0:0,60:51:0:0,61:51:0:0,62:51:0:0,63:51:0:0,64:51:0:0,65:51:0:0,66:51:0:0,67:51:0:1,68:51:0:1,69:51:0:1"
       }
+    },
+    "3aff2eebf7282765bd36b12dddafe749fec5bf1c84b8e26b4f79486be4061ca7": {
+      "key": "KEY_1791029298095_FFB6F2BA",
+      "deviceId": "def456uvw",
+      "username": "sao lai rung dong voi my nua roi",
+      "platform": "AMO",
+      "uniqId": "TDM566586mYd",
+      "hostId": "truongnhat1608vip@gmail.com",
+      "connectedAt": "2026-10-04T05:30:08.788Z",
+      "lastActive": "2026-10-04T05:30:08.788Z",
+      "ip": "127.0.0.1",
+      "sessionData": {
+        "gichapo": "U2C3RTHJ",
+        "runCount": 3,
+        "selectedHero": "68,0,0,0,0,0,0",
+        "selectedHeroMax": 8,
+        "bouHero": "1:1:0:1,2:1:0:0,3:1:0:0,4:3:5400:0,5:3:5400:1,6:3:5400:1,7:1:0:0,8:1:0:0,9:1:0:0,10:1:0:0,11:1:0:0,12:1:0:0,13:1:0:0,14:1:0:0,15:1:0:0,16:1:0:0,17:1:0:0,18:1:0:0,19:1:0:0,20:1:0:0,21:1:0:0,22:1:0:0,23:1:0:0,24:1:0:0,25:1:0:0,26:1:0:0,27:1:0:0,28:1:0:0,29:1:0:0,30:1:0:0,31:1:0:0,32:1:0:0,33:1:0:0,34:1:0:0,35:1:0:0,36:1:0:0,37:51:0:0,38:51:0:0,39:51:0:0,40:51:0:0,41:51:0:0,42:51:0:0,43:1:0:0,44:1:0:0,45:1:0:0,46:51:0:0,47:51:0:0,48:51:0:0,49:51:0:0,50:51:0:0,51:51:0:0,52:51:0:0,53:51:0:0,54:51:0:0,55:51:0:0,56:51:0:0,57:51:0:0,58:51:0:0,59:51:0:0,60:51:0:0,61:51:0:0,62:51:0:0,63:51:0:0,64:51:0:0,65:51:0:0,66:51:0:0,67:51:0:1,68:51:0:1,69:51:0:1"
+      }
+    },
+    "968e650b31f23387f9ccf6b3d2d83bb4961b1492ed03417e730afabe62e34194": {
+      "key": "KEY_1791029298095_FFB6F2BA",
+      "deviceId": "def456uvw",
+      "username": "sao lai rung dong voi my nua roi",
+      "platform": "AMO",
+      "uniqId": "TDM566586mYd",
+      "hostId": "truongnhat1608vip@gmail.com",
+      "connectedAt": "2026-10-04T05:30:48.870Z",
+      "lastActive": "2026-10-04T05:30:48.870Z",
+      "ip": "127.0.0.1",
+      "sessionData": {
+        "gichapo": "BO4LYNHE",
+        "runCount": 3,
+        "selectedHero": "68,0,0,0,0,0,0",
+        "selectedHeroMax": 8,
+        "bouHero": "1:1:0:1,2:1:0:0,3:1:0:0,4:3:5400:0,5:3:5400:1,6:3:5400:1,7:1:0:0,8:1:0:0,9:1:0:0,10:1:0:0,11:1:0:0,12:1:0:0,13:1:0:0,14:1:0:0,15:1:0:0,16:1:0:0,17:1:0:0,18:1:0:0,19:1:0:0,20:1:0:0,21:1:0:0,22:1:0:0,23:1:0:0,24:1:0:0,25:1:0:0,26:1:0:0,27:1:0:0,28:1:0:0,29:1:0:0,30:1:0:0,31:1:0:0,32:1:0:0,33:1:0:0,34:1:0:0,35:1:0:0,36:1:0:0,37:51:0:0,38:51:0:0,39:51:0:0,40:51:0:0,41:51:0:0,42:51:0:0,43:1:0:0,44:1:0:0,45:1:0:0,46:51:0:0,47:51:0:0,48:51:0:0,49:51:0:0,50:51:0:0,51:51:0:0,52:51:0:0,53:51:0:0,54:51:0:0,55:51:0:0,56:51:0:0,57:51:0:0,58:51:0:0,59:51:0:0,60:51:0:0,61:51:0:0,62:51:0:0,63:51:0:0,64:51:0:0,65:51:0:0,66:51:0:0,67:51:0:1,68:51:0:1,69:51:0:1"
+      }
+    },
+    "e3cead4ab150cedf0d37e7f9cc88704b02779ca30fb6cbdfea7d4b5808a984c3": {
+      "key": "KEY_1791029298095_FFB6F2BA",
+      "deviceId": "def456uvw",
+      "username": "sao lai rung dong voi my nua roi",
+      "platform": "AMO",
+      "uniqId": "TDM566586mYd",
+      "hostId": "truongnhat1608vip@gmail.com",
+      "connectedAt": "2026-10-04T05:31:23.013Z",
+      "lastActive": "2026-10-04T05:31:23.013Z",
+      "ip": "127.0.0.1",
+      "sessionData": {
+        "gichapo": "2BGMM33R",
+        "runCount": 3,
+        "selectedHero": "68,0,0,0,0,0,0",
+        "selectedHeroMax": 8,
+        "bouHero": "1:1:0:1,2:1:0:0,3:1:0:0,4:3:5400:0,5:3:5400:1,6:3:5400:1,7:1:0:0,8:1:0:0,9:1:0:0,10:1:0:0,11:1:0:0,12:1:0:0,13:1:0:0,14:1:0:0,15:1:0:0,16:1:0:0,17:1:0:0,18:1:0:0,19:1:0:0,20:1:0:0,21:1:0:0,22:1:0:0,23:1:0:0,24:1:0:0,25:1:0:0,26:1:0:0,27:1:0:0,28:1:0:0,29:1:0:0,30:1:0:0,31:1:0:0,32:1:0:0,33:1:0:0,34:1:0:0,35:1:0:0,36:1:0:0,37:51:0:0,38:51:0:0,39:51:0:0,40:51:0:0,41:51:0:0,42:51:0:0,43:1:0:0,44:1:0:0,45:1:0:0,46:51:0:0,47:51:0:0,48:51:0:0,49:51:0:0,50:51:0:0,51:51:0:0,52:51:0:0,53:51:0:0,54:51:0:0,55:51:0:0,56:51:0:0,57:51:0:0,58:51:0:0,59:51:0:0,60:51:0:0,61:51:0:0,62:51:0:0,63:51:0:0,64:51:0:0,65:51:0:0,66:51:0:0,67:51:0:1,68:51:0:1,69:51:0:1"
+      }
     }
   },
   "users": {
@@ -460,10 +657,10 @@
       "hostId": "truongnhat1608vip@gmail.com",
       "username": "sao lai rung dong voi my nua roi",
       "platform": "AMO",
-      "keyUsed": "KEY_1791086315057_51171467",
+      "keyUsed": "KEY_1791029298095_FFB6F2BA",
       "firstSeen": "2026-10-03T12:14:20.358Z",
-      "lastSeen": "2026-10-04T04:07:38.148Z",
-      "totalUses": 2
+      "lastSeen": "2026-10-04T05:31:23.013Z",
+      "totalUses": 5
     }
   },
   "settings": {

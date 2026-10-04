@@ -162,7 +162,29 @@ app.post('/api/start-tool', async (req, res) => {
         if (keyData.used === undefined) keyData.used = keyData.usedUses ?? 0;
         if (keyData.active === undefined) keyData.active = keyData.status === 'active';
         if (!keyData.expiry) keyData.expiry = '2099-12-31';
-
+        // ===== CHECK HWID (1 KEY = 1 MÁY) =====
+if (deviceId) {
+    if (!keyData.hwid) {
+        // Lần đầu dùng key → lưu HWID
+        keyData.hwid = deviceId;
+        keyData.firstUsedAt = now;
+        console.log(`🔒 Key ${key} gắn với HWID: ${deviceId}`);
+    } else if (keyData.hwid !== deviceId) {
+        // HWID không khớp → từ chối
+        data.logs.push({
+            timestamp: now, key, action: 'START_FAILED',
+            status: 'WRONG_HWID', ip: clientIp,
+            username: username || 'unknown', platform, uniqId, hostId,
+            message: `HWID không khớp. Key thuộc máy khác. HWID gửi: ${deviceId}, HWID lưu: ${keyData.hwid}`
+        });
+        saveData(data);
+        return res.json({
+            success: false,
+            message: 'KEY đã được sử dụng trên máy khác! Mỗi key chỉ dùng được 1 máy.',
+            code: 'WRONG_HWID'
+        });
+    }
+}
         // 4. Check key active
         if (!keyData.active) {
             data.logs.push({ timestamp: now, key, action: 'START_FAILED', status: 'KEY_DISABLED', ip: clientIp, message: 'Key bị vô hiệu hóa' });
