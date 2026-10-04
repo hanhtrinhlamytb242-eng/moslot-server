@@ -1,6 +1,6 @@
 // ============================================================
 // TOOL SERVER - Quản lý license cho tool MoSlot
-// Phiên bản: 5.0.0 (Logic chuyển lên server)
+// Phiên bản: 5.2.0 (HWID lock + Update key)
 // ============================================================
 
 require('dotenv').config();
@@ -24,17 +24,14 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
 // ============================================================
-// DATABASE (JSON file)
+// DATABASE
 // ============================================================
 const DATA_FILE = path.join(__dirname, 'data.json');
 
 function initData() {
     if (!fs.existsSync(DATA_FILE)) {
         const defaultData = {
-            keys: {},
-            logs: [],
-            sessions: {},
-            users: {},
+            keys: {}, logs: [], sessions: {}, users: {},
             settings: {
                 toolEnabled: true,
                 message: 'Tool đang bảo trì hệ thống, sẽ mở lại sau'
@@ -84,15 +81,11 @@ function adminAuth(req, res, next) {
 // API GỐC
 // ============================================================
 app.get('/', (req, res) => {
-    res.json({
-        name: 'MoSlot Tool Server',
-        version: '5.0.0',
-        status: 'running'
-    });
+    res.json({ name: 'MoSlot Tool Server', version: '5.2.0', status: 'running' });
 });
 
 // ============================================================
-// API HEALTH CHECK
+// API HEALTH
 // ============================================================
 app.get('/api/health', (req, res) => {
     const data = initData();
@@ -121,7 +114,7 @@ app.get('/api/status', (req, res) => {
 });
 
 // ============================================================
-// API START-TOOL — Bắt đầu session, lấy data acc
+// API START-TOOL
 // ============================================================
 app.post('/api/start-tool', async (req, res) => {
     const { key, uniqId, username, platform, hostId, deviceId } = req.body;
@@ -130,7 +123,6 @@ app.post('/api/start-tool', async (req, res) => {
     const now = new Date().toISOString();
 
     try {
-        // 1. Check tool bật
         if (data.settings.toolEnabled === false) {
             return res.json({
                 success: false,
@@ -139,12 +131,10 @@ app.post('/api/start-tool', async (req, res) => {
             });
         }
 
-        // 2. Check thiếu key
         if (!key) return res.json({ success: false, message: 'Thiếu key!', code: 'NO_KEY' });
         if (!uniqId) return res.json({ success: false, message: 'Thiếu UNIQ_ID!', code: 'NO_UNIQ' });
         if (!platform) return res.json({ success: false, message: 'Thiếu platform!', code: 'NO_PLATFORM' });
 
-        // 3. Check key tồn tại
         if (!data.keys[key]) {
             data.logs.push({
                 timestamp: now, key, action: 'START_FAILED',
@@ -157,56 +147,51 @@ app.post('/api/start-tool', async (req, res) => {
         }
 
         const keyData = data.keys[key];
-        // Tương thích key cũ
         if (keyData.maxUses === undefined) keyData.maxUses = keyData.totalUses ?? 999;
         if (keyData.used === undefined) keyData.used = keyData.usedUses ?? 0;
         if (keyData.active === undefined) keyData.active = keyData.status === 'active';
         if (!keyData.expiry) keyData.expiry = '2099-12-31';
+
         // ===== CHECK HWID (1 KEY = 1 MÁY) =====
-if (deviceId) {
-    if (!keyData.hwid) {
-        // Lần đầu dùng key → lưu HWID
-        keyData.hwid = deviceId;
-        keyData.firstUsedAt = now;
-        console.log(`🔒 Key ${key} gắn với HWID: ${deviceId}`);
-    } else if (keyData.hwid !== deviceId) {
-        // HWID không khớp → từ chối
-        data.logs.push({
-            timestamp: now, key, action: 'START_FAILED',
-            status: 'WRONG_HWID', ip: clientIp,
-            username: username || 'unknown', platform, uniqId, hostId,
-            message: `HWID không khớp. Key thuộc máy khác. HWID gửi: ${deviceId}, HWID lưu: ${keyData.hwid}`
-        });
-        saveData(data);
-        return res.json({
-            success: false,
-            message: 'KEY đã được sử dụng trên máy khác! Mỗi key chỉ dùng được 1 máy.',
-            code: 'WRONG_HWID'
-        });
-    }
-}
-        // 4. Check key active
+        if (deviceId) {
+            if (!keyData.hwid) {
+                keyData.hwid = deviceId;
+                keyData.firstUsedAt = now;
+                console.log(`🔒 Key ${key} gắn với HWID: ${deviceId}`);
+            } else if (keyData.hwid !== deviceId) {
+                data.logs.push({
+                    timestamp: now, key, action: 'START_FAILED',
+                    status: 'WRONG_HWID', ip: clientIp,
+                    username: username || 'unknown', platform, uniqId, hostId,
+                    message: `HWID không khớp. Key thuộc máy khác.`
+                });
+                saveData(data);
+                return res.json({
+                    success: false,
+                    message: 'KEY đã được sử dụng trên máy khác! Mỗi key chỉ dùng được 1 máy.',
+                    code: 'WRONG_HWID'
+                });
+            }
+        }
+
         if (!keyData.active) {
             data.logs.push({ timestamp: now, key, action: 'START_FAILED', status: 'KEY_DISABLED', ip: clientIp, message: 'Key bị vô hiệu hóa' });
             saveData(data);
             return res.json({ success: false, message: 'Key đã bị vô hiệu hóa!', code: 'KEY_DISABLED' });
         }
 
-        // 5. Check hết hạn
         if (new Date(keyData.expiry) < new Date()) {
             data.logs.push({ timestamp: now, key, action: 'START_FAILED', status: 'KEY_EXPIRED', ip: clientIp, message: 'Key hết hạn' });
             saveData(data);
             return res.json({ success: false, message: 'Key đã hết hạn!', code: 'KEY_EXPIRED' });
         }
 
-        // 6. Check hết lượt
         if (keyData.used >= keyData.maxUses) {
             data.logs.push({ timestamp: now, key, action: 'START_FAILED', status: 'KEY_EXHAUSTED', ip: clientIp, message: 'Key hết lượt' });
             saveData(data);
             return res.json({ success: false, message: 'Key đã hết lượt sử dụng!', code: 'KEY_EXHAUSTED' });
         }
 
-        // 7. LẤY DATA ACC TỪ SERVER GAME (chạy trên server)
         let info;
         try {
             info = await gameApi.fetchUserData(platform, uniqId, hostId);
@@ -224,18 +209,13 @@ if (deviceId) {
             });
         }
 
-        // 8. Tạo session token
         const token = crypto.randomBytes(32).toString('hex');
         data.sessions[token] = {
             key,
             deviceId: deviceId || 'unknown',
             username: info.userName || username || 'unknown',
-            platform,
-            uniqId,
-            hostId,
-            connectedAt: now,
-            lastActive: now,
-            ip: clientIp,
+            platform, uniqId, hostId,
+            connectedAt: now, lastActive: now, ip: clientIp,
             sessionData: {
                 gichapo: info.gichapo,
                 runCount: info.runCount,
@@ -245,7 +225,6 @@ if (deviceId) {
             }
         };
 
-        // 9. Lưu user info
         if (uniqId) {
             if (!data.users[uniqId]) {
                 data.users[uniqId] = {
@@ -264,7 +243,6 @@ if (deviceId) {
             }
         }
 
-        // 10. Log
         data.logs.push({
             timestamp: now, key, action: 'START_SUCCESS',
             username: info.userName || 'unknown', platform, uniqId, hostId,
@@ -274,7 +252,6 @@ if (deviceId) {
 
         saveData(data);
 
-        // 11. Trả data cho client (KHÔNG trả gichapo, runCount → client không cần biết)
         res.json({
             success: true,
             token,
@@ -297,7 +274,7 @@ if (deviceId) {
 });
 
 // ============================================================
-// API OPEN-SLOT — Mở slot (chạy trên server)
+// API OPEN-SLOT
 // ============================================================
 app.post('/api/open-slot', async (req, res) => {
     const { token, count } = req.body;
@@ -306,7 +283,6 @@ app.post('/api/open-slot', async (req, res) => {
     const now = new Date().toISOString();
 
     try {
-        // 1. Check session token
         if (!token || !data.sessions[token]) {
             return res.json({ success: false, message: 'Session không hợp lệ! Vui lòng chạy lại tool.', code: 'NO_SESSION' });
         }
@@ -314,24 +290,20 @@ app.post('/api/open-slot', async (req, res) => {
         const session = data.sessions[token];
         const keyData = data.keys[session.key];
 
-        // 2. Check tool bật
         if (data.settings.toolEnabled === false) {
             return res.json({ success: false, message: data.settings.message, code: 'TOOL_DISABLED' });
         }
 
-        // 3. Check key còn lượt
         if (keyData.used >= keyData.maxUses) {
             return res.json({ success: false, message: 'Key đã hết lượt sử dụng!', code: 'KEY_EXHAUSTED' });
         }
 
-        // 4. Check count
         const openCount = Math.max(1, Math.min(parseInt(count) || 1, 50));
         const remaining = keyData.maxUses - keyData.used;
         const actualCount = Math.min(openCount, remaining);
 
         session.lastActive = now;
 
-        // 5. Chuẩn bị data
         let currentRunCount = session.sessionData.runCount;
         let currentHeroData = {
             selectedHero: session.sessionData.selectedHero,
@@ -339,13 +311,11 @@ app.post('/api/open-slot', async (req, res) => {
             bouHero: session.sessionData.bouHero
         };
 
-        // 6. MỞ SLOT TRÊN SERVER
         let successCount = 0;
         let failCount = 0;
         const results = [];
 
         for (let i = 1; i <= actualCount; i++) {
-            // Delay: 2s lần đầu, 1s các lần sau
             if (i === 1) {
                 await new Promise(r => setTimeout(r, 2000));
             } else {
@@ -361,12 +331,8 @@ app.post('/api/open-slot', async (req, res) => {
 
             try {
                 const result = await gameApi.expandHeroSlot(
-                    session.platform,
-                    session.uniqId,
-                    session.hostId,
-                    session.sessionData.gichapo,
-                    runToSend,
-                    currentHeroData
+                    session.platform, session.uniqId, session.hostId,
+                    session.sessionData.gichapo, runToSend, currentHeroData
                 );
 
                 if (result && result.RESULT === "OK") {
@@ -392,16 +358,14 @@ app.post('/api/open-slot', async (req, res) => {
             }
         }
 
-        // 7. Trừ lượt dùng key theo số slot đã mở
+        // Chỉ trừ lượt theo số slot mở THÀNH CÔNG
         keyData.used += successCount;
 
-        // 8. Cập nhật session
         session.sessionData.runCount = currentRunCount;
         session.sessionData.selectedHero = currentHeroData.selectedHero;
         session.sessionData.selectedHeroMax = currentHeroData.selectedHeroMax;
         session.sessionData.bouHero = currentHeroData.bouHero;
 
-        // 9. Log
         data.logs.push({
             timestamp: now, key: session.key, action: 'OPEN_SLOT',
             username: session.username, platform: session.platform,
@@ -413,7 +377,6 @@ app.post('/api/open-slot', async (req, res) => {
 
         saveData(data);
 
-        // 10. Trả kết quả
         res.json({
             success: true,
             message: `Đã mở ${successCount}/${actualCount} slot thành công`,
@@ -434,7 +397,7 @@ app.post('/api/open-slot', async (req, res) => {
 });
 
 // ============================================================
-// API END-TOOL — Kết thúc session
+// API END-TOOL
 // ============================================================
 app.post('/api/end-tool', (req, res) => {
     const { token } = req.body;
@@ -460,6 +423,7 @@ app.post('/api/admin/create-key', adminAuth, (req, res) => {
         maxUses: maxUses || 999,
         used: 0,
         active: true,
+        hwid: null,
         createdBy: 'ADMIN',
         createdAt: new Date().toISOString(),
         note: note || 'Key mới'
@@ -492,7 +456,71 @@ app.get('/api/admin/list-keys', adminAuth, (req, res) => {
 });
 
 // ============================================================
-// API ADMIN — XÓA KEY
+// API ADMIN — SỬA KEY
+// ============================================================
+app.post('/api/admin/update-key', adminAuth, (req, res) => {
+    const { key, maxUses, used, note, expiry } = req.body;
+    const data = initData();
+
+    if (!data.keys[key]) {
+        return res.json({ success: false, message: 'Key không tồn tại!' });
+    }
+
+    const k = data.keys[key];
+    const changes = [];
+
+    if (maxUses !== undefined && maxUses !== null && maxUses !== '') {
+        k.maxUses = parseInt(maxUses);
+        changes.push(`maxUses=${maxUses}`);
+    }
+    if (used !== undefined && used !== null && used !== '') {
+        k.used = parseInt(used);
+        changes.push(`used=${used}`);
+    }
+    if (note !== undefined) {
+        k.note = note;
+        changes.push(`note="${note}"`);
+    }
+    if (expiry !== undefined && expiry !== '') {
+        k.expiry = expiry;
+        changes.push(`expiry=${expiry}`);
+    }
+
+    data.logs.push({
+        timestamp: new Date().toISOString(), key,
+        action: 'KEY_UPDATED', username: 'ADMIN', platform: 'ADMIN',
+        uniqId: 'ADMIN', status: 'SUCCESS', ip: req.clientIp,
+        message: `Đã sửa key: ${changes.join(', ')}`
+    });
+
+    saveData(data);
+    res.json({ success: true, message: 'Đã cập nhật key!', data: k });
+});
+
+// ============================================================
+// API ADMIN — RESET HWID
+// ============================================================
+app.post('/api/admin/reset-hwid', adminAuth, (req, res) => {
+    const { key } = req.body;
+    const data = initData();
+    if (!data.keys[key]) {
+        return res.json({ success: false, message: 'Key không tồn tại!' });
+    }
+    const oldHwid = data.keys[key].hwid;
+    data.keys[key].hwid = null;
+    data.keys[key].firstUsedAt = null;
+    data.logs.push({
+        timestamp: new Date().toISOString(), key,
+        action: 'RESET_HWID', username: 'ADMIN', platform: 'ADMIN',
+        uniqId: 'ADMIN', status: 'SUCCESS', ip: req.clientIp,
+        message: `Đã reset HWID (cũ: ${oldHwid || 'none'})`
+    });
+    saveData(data);
+    res.json({ success: true, message: `Đã reset HWID cho key: ${key}` });
+});
+
+// ============================================================
+// API ADMIN — XOÁ KEY
 // ============================================================
 app.post('/api/admin/delete-key', adminAuth, (req, res) => {
     const { key } = req.body;
@@ -505,7 +533,7 @@ app.post('/api/admin/delete-key', adminAuth, (req, res) => {
 });
 
 // ============================================================
-// API ADMIN — DISABLE/ENABLE KEY
+// API ADMIN — DISABLE / ENABLE KEY
 // ============================================================
 app.post('/api/admin/disable-key', adminAuth, (req, res) => {
     const { key } = req.body;

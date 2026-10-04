@@ -101,6 +101,28 @@
       "createdBy": "ADMIN",
       "createdAt": "2026-10-04T05:26:40.129Z",
       "note": "Test HWID"
+    },
+    "KEY_1791092521790_1F98C841": {
+      "type": "vip",
+      "expiry": "2028-12-31",
+      "maxUses": 50,
+      "used": 0,
+      "active": true,
+      "hwid": null,
+      "createdBy": "ADMIN",
+      "createdAt": "2026-10-04T05:42:01.793Z",
+      "note": "VIP"
+    },
+    "KEY_1791092568520_85265FC0": {
+      "type": "vip",
+      "expiry": "2028-12-31",
+      "maxUses": 10,
+      "used": 0,
+      "active": true,
+      "hwid": null,
+      "createdBy": "ADMIN",
+      "createdAt": "2026-10-04T05:42:48.521Z",
+      "note": "Test v5.2"
     }
   },
   "logs": [
@@ -543,6 +565,39 @@
       "ip": "127.0.0.1",
       "sessionToken": "e3cead4ab150cedf0d37e7f9cc88704b02779ca30fb6cbdfea7d4b5808a984c3",
       "message": "Bắt đầu session. Còn 10 lượt"
+    },
+    {
+      "timestamp": "2026-10-04T05:42:01.793Z",
+      "key": "KEY_1791092521790_1F98C841",
+      "action": "KEY_CREATED",
+      "username": "ADMIN",
+      "platform": "ADMIN",
+      "uniqId": "ADMIN",
+      "status": "SUCCESS",
+      "ip": "127.0.0.1",
+      "message": "Đã tạo key mới: KEY_1791092521790_1F98C841"
+    },
+    {
+      "timestamp": "2026-10-04T05:42:48.521Z",
+      "key": "KEY_1791092568520_85265FC0",
+      "action": "KEY_CREATED",
+      "username": "ADMIN",
+      "platform": "ADMIN",
+      "uniqId": "ADMIN",
+      "status": "SUCCESS",
+      "ip": "127.0.0.1",
+      "message": "Đã tạo key mới: KEY_1791092568520_85265FC0"
+    },
+    {
+      "timestamp": "2026-10-04T05:42:50.004Z",
+      "key": "KEY_1791092521790_1F98C841",
+      "action": "KEY_UPDATED",
+      "username": "ADMIN",
+      "platform": "ADMIN",
+      "uniqId": "ADMIN",
+      "status": "SUCCESS",
+      "ip": "127.0.0.1",
+      "message": "Đã sửa key: maxUses=50, used=0, note=\"VIP\""
     }
   ],
   "sessions": {
