@@ -1,6 +1,6 @@
 // ============================================================
-// TOOL SERVER - Quản lý license + Hệ thống vượt link
-// Phiên bản: 6.0.0 (Thêm Rewards System)
+// TOOL SERVER - Quản lý license cho tool MoSlot
+// Phiên bản: 5.2.0 (HWID lock + Update key)
 // ============================================================
 
 require('dotenv').config();
@@ -32,9 +32,6 @@ function initData() {
     if (!fs.existsSync(DATA_FILE)) {
         const defaultData = {
             keys: {}, logs: [], sessions: {}, users: {},
-            rewards: {},        // ← MỚI: Mã reward
-            getkeyLogs: [],     // ← MỚI: Log khách lấy key
-            dailyGetkey: {},    // ← MỚI: Rate limit
             settings: {
                 toolEnabled: true,
                 message: 'Tool đang bảo trì hệ thống, sẽ mở lại sau'
@@ -47,9 +44,6 @@ function initData() {
     if (!data.logs) data.logs = [];
     if (!data.sessions) data.sessions = {};
     if (!data.users) data.users = {};
-    if (!data.rewards) data.rewards = {};
-    if (!data.getkeyLogs) data.getkeyLogs = [];
-    if (!data.dailyGetkey) data.dailyGetkey = {};
     if (!data.settings) data.settings = { toolEnabled: true, message: 'Tool đang bảo trì hệ thống, sẽ mở lại sau' };
     if (data.settings.toolEnabled === undefined) data.settings.toolEnabled = true;
     if (!data.settings.message) data.settings.message = 'Tool đang bảo trì hệ thống, sẽ mở lại sau';
@@ -87,7 +81,7 @@ function adminAuth(req, res, next) {
 // API GỐC
 // ============================================================
 app.get('/', (req, res) => {
-    res.json({ name: 'MoSlot Tool Server', version: '6.0.0', status: 'running' });
+    res.json({ name: 'MoSlot Tool Server', version: '5.2.0', status: 'running' });
 });
 
 // ============================================================
@@ -103,7 +97,6 @@ app.get('/api/health', (req, res) => {
         totalSessions: Object.keys(data.sessions).length,
         totalUsers: Object.keys(data.users).length,
         totalLogs: data.logs.length,
-        totalRewards: Object.keys(data.rewards).length,
         toolEnabled: data.settings.toolEnabled
     });
 });
@@ -365,6 +358,7 @@ app.post('/api/open-slot', async (req, res) => {
             }
         }
 
+        // Chỉ trừ lượt theo số slot mở THÀNH CÔNG
         keyData.used += successCount;
 
         session.sessionData.runCount = currentRunCount;
@@ -413,158 +407,6 @@ app.post('/api/end-tool', (req, res) => {
         saveData(data);
     }
     res.json({ success: true, message: 'Đã kết thúc session' });
-});
-
-// ============================================================
-// ===== HỆ THỐNG LẤY KEY QUA VƯỢT LINK =====
-// ============================================================
-
-// API GETKEY — START
-app.post('/api/getkey/start', (req, res) => {
-    const data = initData();
-
-    if (data.settings.toolEnabled === false) {
-        return res.json({
-            success: false,
-            message: data.settings.message || 'Hệ thống đang bảo trì, vui lòng thử lại sau'
-        });
-    }
-
-    const availableRewards = Object.values(data.rewards).filter(r => !r.used);
-
-    if (availableRewards.length === 0) {
-        return res.json({
-            success: false,
-            message: 'Đã hết mã, vui lòng quay lại sau!',
-            noRewards: true
-        });
-    }
-
-    const randomReward = availableRewards[Math.floor(Math.random() * availableRewards.length)];
-
-    res.json({
-        success: true,
-        link: randomReward.link,
-        provider: randomReward.provider || 'Khác',
-        message: 'Bấm vào link để vượt, sau đó nhập mã xác nhận'
-    });
-});
-
-// API GETKEY — VERIFY
-app.post('/api/getkey/verify', (req, res) => {
-    let { code } = req.body;
-    code = (code || '').trim().toUpperCase();
-    const clientIp = req.clientIp;
-    const data = initData();
-    const now = Date.now();
-    const today = new Date().toISOString().split('T')[0];
-
-    if (data.settings.toolEnabled === false) {
-        return res.json({ success: false, message: 'Hệ thống đang bảo trì' });
-    }
-
-    if (!code || code.length < 3) {
-        return res.json({ success: false, message: 'Mã không hợp lệ!' });
-    }
-
-    if (!data.dailyGetkey[today]) data.dailyGetkey[today] = {};
-    const todayCount = data.dailyGetkey[today][clientIp] || 0;
-
-    if (todayCount >= 5) {
-        return res.json({
-            success: false,
-            message: 'Bạn đã lấy key quá 5 lần hôm nay! Vui lòng quay lại vào ngày mai.',
-            code: 'RATE_LIMIT'
-        });
-    }
-
-    const reward = data.rewards[code];
-    if (!reward) {
-        return res.json({ success: false, message: 'Mã không tồn tại!' });
-    }
-
-    if (reward.used) {
-        return res.json({
-            success: false,
-            message: 'Mã này đã được sử dụng!',
-            code: 'CODE_USED'
-        });
-    }
-
-    const availableKeys = Object.entries(data.keys).filter(([k, kd]) => {
-        const active = kd.active !== undefined ? kd.active : (kd.status === 'active');
-        const used = kd.used !== undefined ? kd.used : (kd.usedUses || 0);
-        const maxUses = kd.maxUses !== undefined ? kd.maxUses : (kd.totalUses || 999);
-        const isNew = !kd.hwid;
-        return active && used < maxUses && isNew;
-    });
-
-    if (availableKeys.length === 0) {
-        return res.json({
-            success: false,
-            message: 'Hết key trong kho, vui lòng báo admin!',
-            code: 'NO_KEYS_LEFT'
-        });
-    }
-
-    const [newKey, keyData] = availableKeys[0];
-
-    if (reward.keyMaxUses && reward.keyMaxUses > 0) {
-        keyData.maxUses = reward.keyMaxUses;
-    }
-    if (keyData.used === undefined) keyData.used = 0;
-    if (keyData.active === undefined) keyData.active = true;
-
-    reward.used = true;
-    reward.usedBy = clientIp;
-    reward.usedAt = now;
-    reward.keyGiven = newKey;
-
-    keyData.source = 'getkey';
-    keyData.sourceCode = code;
-    keyData.sourceIp = clientIp;
-    keyData.givenAt = now;
-
-    data.getkeyLogs.push({
-        ip: clientIp,
-        code: code,
-        keyGiven: newKey,
-        time: now
-    });
-
-    data.dailyGetkey[today][clientIp] = todayCount + 1;
-
-    data.logs.push({
-        timestamp: new Date().toISOString(),
-        key: newKey,
-        action: 'GETKEY_SUCCESS',
-        username: 'GUEST',
-        platform: 'WEB',
-        uniqId: clientIp,
-        status: 'SUCCESS',
-        ip: clientIp,
-        message: `Cấp key qua vượt link. Mã: ${code}`
-    });
-
-    saveData(data);
-
-    res.json({
-        success: true,
-        message: 'Chúc mừng! Bạn đã nhận được key',
-        key: newKey,
-        keyInfo: {
-            maxUses: keyData.maxUses,
-            used: keyData.used,
-            remaining: keyData.maxUses - keyData.used,
-            expiry: keyData.expiry || '2028-12-31',
-            note: keyData.note || ''
-        },
-        rateLimit: {
-            todayUsed: todayCount + 1,
-            maxPerDay: 5,
-            remaining: 4 - todayCount
-        }
-    });
 });
 
 // ============================================================
@@ -793,153 +635,6 @@ app.get('/api/admin/tool-status', adminAuth, (req, res) => {
 });
 
 // ============================================================
-// API ADMIN — REWARDS (MÃ VƯỢT LINK)
-// ============================================================
-
-// Tạo mã reward
-app.post('/api/admin/create-reward', adminAuth, (req, res) => {
-    const { code, link, keyMaxUses, provider, note } = req.body;
-    const data = initData();
-
-    if (!code || code.length < 3) {
-        return res.json({ success: false, message: 'Mã phải từ 3 ký tự!' });
-    }
-    if (!link) {
-        return res.json({ success: false, message: 'Thiếu link!' });
-    }
-
-    const codeUpper = code.trim().toUpperCase();
-
-    if (data.rewards[codeUpper]) {
-        return res.json({ success: false, message: `Mã "${codeUpper}" đã tồn tại!` });
-    }
-
-    data.rewards[codeUpper] = {
-        code: codeUpper,
-        link: link.trim(),
-        provider: provider || 'link4sub',
-        keyMaxUses: parseInt(keyMaxUses) || 10,
-        note: note || '',
-        used: false,
-        usedBy: null,
-        usedAt: null,
-        keyGiven: null,
-        createdAt: Date.now()
-    };
-
-    data.logs.push({
-        timestamp: new Date().toISOString(),
-        key: codeUpper,
-        action: 'REWARD_CREATED',
-        username: 'ADMIN',
-        platform: 'ADMIN',
-        uniqId: 'ADMIN',
-        status: 'SUCCESS',
-        ip: req.clientIp,
-        message: `Đã tạo mã reward: ${codeUpper} → ${link} (${keyMaxUses} lượt)`
-    });
-
-    saveData(data);
-    res.json({
-        success: true,
-        message: `Đã tạo mã ${codeUpper}!`,
-        reward: data.rewards[codeUpper]
-    });
-});
-
-// Danh sách mã reward
-app.get('/api/admin/list-rewards', adminAuth, (req, res) => {
-    const data = initData();
-    const rewards = Object.values(data.rewards).map(r => ({
-        ...r,
-        usedAtText: r.usedAt ? new Date(r.usedAt).toLocaleString('vi-VN') : null
-    })).sort((a, b) => b.createdAt - a.createdAt);
-
-    const total = rewards.length;
-    const used = rewards.filter(r => r.used).length;
-    const available = total - used;
-
-    res.json({
-        success: true,
-        total,
-        used,
-        available,
-        rewards
-    });
-});
-
-// Xoá mã reward
-app.post('/api/admin/delete-reward', adminAuth, (req, res) => {
-    const { code } = req.body;
-    const data = initData();
-    const codeUpper = (code || '').trim().toUpperCase();
-
-    if (!data.rewards[codeUpper]) {
-        return res.json({ success: false, message: 'Mã không tồn tại!' });
-    }
-
-    delete data.rewards[codeUpper];
-
-    data.logs.push({
-        timestamp: new Date().toISOString(),
-        key: codeUpper,
-        action: 'REWARD_DELETED',
-        username: 'ADMIN',
-        platform: 'ADMIN',
-        uniqId: 'ADMIN',
-        status: 'SUCCESS',
-        ip: req.clientIp,
-        message: `Đã xoá mã reward: ${codeUpper}`
-    });
-
-    saveData(data);
-    res.json({ success: true, message: `Đã xoá mã ${codeUpper}!` });
-});
-
-// Reset mã reward (cho phép dùng lại)
-app.post('/api/admin/reset-reward', adminAuth, (req, res) => {
-    const { code } = req.body;
-    const data = initData();
-    const codeUpper = (code || '').trim().toUpperCase();
-
-    if (!data.rewards[codeUpper]) {
-        return res.json({ success: false, message: 'Mã không tồn tại!' });
-    }
-
-    data.rewards[codeUpper].used = false;
-    data.rewards[codeUpper].usedBy = null;
-    data.rewards[codeUpper].usedAt = null;
-    data.rewards[codeUpper].keyGiven = null;
-
-    saveData(data);
-    res.json({ success: true, message: `Đã reset mã ${codeUpper}!` });
-});
-
-// Log getkey
-app.get('/api/admin/getkey-logs', adminAuth, (req, res) => {
-    const data = initData();
-    const logs = (data.getkeyLogs || []).slice().reverse().slice(0, 200);
-    res.json({ success: true, total: logs.length, logs });
-});
-
-// Thống kê getkey
-app.get('/api/admin/getkey-stats', adminAuth, (req, res) => {
-    const data = initData();
-    const today = new Date().toISOString().split('T')[0];
-    const todayData = data.dailyGetkey[today] || {};
-    const todayTotal = Object.values(todayData).reduce((s, c) => s + c, 0);
-
-    res.json({
-        success: true,
-        today: todayTotal,
-        todayByIp: todayData,
-        totalRewards: Object.keys(data.rewards).length,
-        usedRewards: Object.values(data.rewards).filter(r => r.used).length,
-        totalLogs: (data.getkeyLogs || []).length
-    });
-});
-
-// ============================================================
 // START SERVER
 // ============================================================
 app.listen(PORT, '0.0.0.0', () => {
@@ -947,6 +642,4 @@ app.listen(PORT, '0.0.0.0', () => {
     console.log(`✅ Server đang chạy tại port ${PORT}`);
     console.log(`📁 Dữ liệu: ${DATA_FILE}`);
     console.log(`🔑 Admin key: ${ADMIN_KEY.substring(0, 3)}***`);
-    console.log(`🌐 Web lấy key: http://localhost:${PORT}/get-key.html`);
-    console.log(`🎛️ Admin panel: http://localhost:${PORT}/admin.html`);
 });

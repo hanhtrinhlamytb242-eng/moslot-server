@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MoSlot Manager - Admin</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+    background: #0f172a; color: #e2e8f0;
+    padding: 12px; font-size: 14px; line-height: 1.5;
+    min-height: 100vh;
+}
+.container { max-width: 1100px; margin: 0 auto; }
+h1 { color: #38bdf8; font-size: 22px; margin-bottom: 6px; }
+h2 { color: #94a3b8; font-size: 15px; margin: 18px 0 10px;
+     border-bottom: 1px solid #334155; padding-bottom: 6px; }
+.subtitle { color: #64748b; font-size: 12px; margin-bottom: 16px; }
+.card {
+    background: #1e293b; border: 1px solid #334155;
+    border-radius: 10px; padding: 14px; margin-bottom: 14px;
+}
+input, select, textarea, button {
+    background: #0f172a; color: #e2e8f0;
+    border: 1px solid #475569; border-radius: 6px;
+    padding: 9px 11px; font-size: 14px;
+    width: 100%; margin: 4px 0; font-family: inherit;
+}
+input:focus, select:focus, textarea:focus { outline: none; border-color: #38bdf8; }
+button {
+    background: #0ea5e9; color: white; border: none;
+    cursor: pointer; font-weight: 600;
+    transition: all 0.15s;
+}
+button:hover { background: #0284c7; }
+button:active { transform: scale(0.98); }
+button.danger { background: #ef4444; }
+button.danger:hover { background: #dc2626; }
+button.warn { background: #f59e0b; color: #1e293b; }
+button.warn:hover { background: #d97706; }
+button.ok { background: #10b981; }
+button.ok:hover { background: #059669; }
+button.small {
+    padding: 5px 9px; font-size: 12px;
+    width: auto; margin: 2px;
+}
+.row { display: flex; gap: 8px; flex-wrap: wrap; margin: 4px 0; }
+.row > * { flex: 1; min-width: 140px; }
+
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; }
+.stat {
+    background: #0f172a; border: 1px solid #334155;
+    border-radius: 8px; padding: 12px; text-align: center;
+}
+.stat .num { color: #38bdf8; font-size: 24px; font-weight: bold; }
+.stat .label { color: #94a3b8; font-size: 11px; margin-top: 4px; }
+
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+th, td { padding: 7px 6px; border-bottom: 1px solid #334155; text-align: left; }
+th { color: #94a3b8; font-size: 11px; font-weight: 600; text-transform: uppercase; }
+tr:hover td { background: #0f172a; }
+
+.badge { padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+.on { background: #065f46; color: #6ee7b7; }
+.off { background: #7f1d1d; color: #fca5a5; }
+.warn-badge { background: #78350f; color: #fcd34d; }
+
+.key { font-family: 'Courier New', monospace; color: #fbbf24; font-size: 11px; word-break: break-all; }
+.hidden { display: none !important; }
+#loginBox { max-width: 420px; margin: 80px auto; }
+
+.msg { padding: 10px 12px; border-radius: 6px; margin: 8px 0; font-size: 13px; display: none; }
+.msg.show { display: block; }
+.msg.ok { background: #065f46; color: #6ee7b7; border: 1px solid #10b981; }
+.msg.err { background: #7f1d1d; color: #fca5a5; border: 1px solid #ef4444; }
+.msg.info { background: #1e3a8a; color: #93c5fd; border: 1px solid #3b82f6; }
+
+.tabs { display: flex; gap: 4px; margin-bottom: 14px; flex-wrap: wrap; }
+.tab {
+    padding: 8px 14px; background: #1e293b;
+    border: 1px solid #334155; border-radius: 6px;
+    cursor: pointer; font-size: 13px; color: #94a3b8;
+    transition: all 0.15s;
+}
+.tab:hover { color: #e2e8f0; }
+.tab.active { background: #0ea5e9; color: white; border-color: #0ea5e9; }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+.log-item {
+    padding: 8px 10px; border-left: 3px solid #334155;
+    background: #0f172a; margin: 4px 0; border-radius: 4px;
+    font-size: 12px;
+}
+.log-item.success { border-color: #10b981; }
+.log-item.fail { border-color: #ef4444; }
+.log-item .time { color: #64748b; font-size: 11px; }
+.empty { text-align: center; padding: 30px; color: #64748b; font-size: 13px; }
+
+.toast {
+    position: fixed; bottom: 20px; right: 20px;
+    background: #1e293b; border: 1px solid #38bdf8;
+    color: #e2e8f0; padding: 12px 18px;
+    border-radius: 8px; font-size: 13px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    opacity: 0; transform: translateY(20px);
+    transition: all 0.3s; z-index: 9999;
+    max-width: 90%;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+.toast.err { border-color: #ef4444; }
+.toast.ok { border-color: #10b981; }
+</style>
+</head>
+<body>
+
+<div id="loginBox">
+    <div class="card">
+        <h1>🔐 MoSlot Manager</h1>
+        <p class="subtitle">Đăng nhập để quản lý tool</p>
+        <input type="password" id="adminKey" placeholder="Nhập Admin Key" autofocus>
+        <button onclick="login()" style="margin-top:8px">Đăng nhập</button>
+        <div id="loginMsg" class="msg"></div>
+    </div>
+</div>
+
+<div id="panel" class="container hidden">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px">
+        <div>
+            <h1>🎛️ MoSlot Manager <span style="color:#64748b; font-size:14px">v5.2</span></h1>
+            <p class="subtitle">Quản lý tool từ xa</p>
+        </div>
+        <button class="small danger" onclick="logout()">🚪 Đăng xuất</button>
+    </div>
+
+<	    <div id="tab-dashboard" class="tab-content active">
+        <div class="card">
+            <h2>⛔ Trạng thái tool</h2>
+            <div id="toolStatusBox" style="text-align:center; padding:14px 0; font-size:16px">
+                Đang tải...
+            </div>
+            <div style="margin-top:10px">
+                <label style="color:#94a3b8; font-size:12px">Thông báo khi tắt tool:</label>
+                <textarea id="toolMessage" rows="2" placeholder="Nhập thông báo..."></textarea>
+            </div>
+            <div class="row" style="margin-top:8px">
+                <button class="ok" onclick="toggleTool(true)">🟢 BẬT TOOL</button>
+                <button class="danger" onclick="toggleTool(false)">🔴 TẮT TOOL</button>
+                <button class="warn" onclick="saveMessage()">💾 Lưu thông báo</button>
+            </div>
+            <div id="toolMsg" class="msg"></div>
+        </div>
+
+        <div class="card">
+            <h2>📊 Thống kê</h2>
+            <div class="stats" id="statsBox">
+                <div class="stat"><div class="num" id="statKeys">-</div><div class="label">Tổng Key</div></div>
+                <div class="stat"><div class="num" id="statActiveKeys">-</div><div class="label">Key Active</div></div>
+                <div class="stat"><div class="num" id="statUsers">-</div><div class="label">Users</div></div>
+                <div class="stat"><div class="num" id="statSessions">-</div><div class="label">Sessions</div></div>
+                <div class="stat"><div class="num" id="statLogs">-</div><div class="label">Logs</div></div>
+            </div>
+            <button style="margin-top:10px" onclick="loadStats()">🔄 Tải lại</button>
+="=""
+="

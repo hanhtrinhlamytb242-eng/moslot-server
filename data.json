@@ -3,12 +3,16 @@
     "KEY_1791029210112_A61A92A0": {
       "type": "vip",
       "expiry": "2028-12-31",
-      "maxUses": 10,
+      "maxUses": 1,
       "used": 0,
       "active": true,
       "createdBy": "ADMIN",
       "createdAt": "2026-10-03T12:06:50.113Z",
-      "note": "Test key"
+      "note": "Test key",
+      "source": "getkey",
+      "sourceCode": "MYCUTEEE",
+      "sourceIp": "127.0.0.1",
+      "givenAt": 1791099896997
     },
     "KEY_1791029298095_FFB6F2BA": {
       "type": "vip",
@@ -598,6 +602,39 @@
       "status": "SUCCESS",
       "ip": "127.0.0.1",
       "message": "Đã sửa key: maxUses=50, used=0, note=\"VIP\""
+    },
+    {
+      "timestamp": "2026-10-04T07:35:33.096Z",
+      "key": "A1B2C3",
+      "action": "REWARD_CREATED",
+      "username": "ADMIN",
+      "platform": "ADMIN",
+      "uniqId": "ADMIN",
+      "status": "SUCCESS",
+      "ip": "127.0.0.1",
+      "message": "Đã tạo mã reward: A1B2C3 → https://link4sub.com/abc (10 lượt)"
+    },
+    {
+      "timestamp": "2026-10-04T07:42:08.263Z",
+      "key": "MYCUTEEE",
+      "action": "REWARD_CREATED",
+      "username": "ADMIN",
+      "platform": "ADMIN",
+      "uniqId": "ADMIN",
+      "status": "SUCCESS",
+      "ip": "127.0.0.1",
+      "message": "Đã tạo mã reward: MYCUTEEE → kaitomc123gtd@gmail.com (1 lượt)"
+    },
+    {
+      "timestamp": "2026-10-04T07:44:56.998Z",
+      "key": "KEY_1791029210112_A61A92A0",
+      "action": "GETKEY_SUCCESS",
+      "username": "GUEST",
+      "platform": "WEB",
+      "uniqId": "127.0.0.1",
+      "status": "SUCCESS",
+      "ip": "127.0.0.1",
+      "message": "Cấp key qua vượt link. Mã: MYCUTEEE"
     }
   ],
   "sessions": {
@@ -721,5 +758,44 @@
   "settings": {
     "toolEnabled": true,
     "message": "Tool đang bảo trì hệ thống, sẽ mở lại sau"
+  },
+  "rewards": {
+    "A1B2C3": {
+      "code": "A1B2C3",
+      "link": "https://link4sub.com/abc",
+      "provider": "link4sub",
+      "keyMaxUses": 10,
+      "note": "Test",
+      "used": false,
+      "usedBy": null,
+      "usedAt": null,
+      "keyGiven": null,
+      "createdAt": 1791099333096
+    },
+    "MYCUTEEE": {
+      "code": "MYCUTEEE",
+      "link": "kaitomc123gtd@gmail.com",
+      "provider": "link4sub",
+      "keyMaxUses": 1,
+      "note": "",
+      "used": true,
+      "usedBy": "127.0.0.1",
+      "usedAt": 1791099896997,
+      "keyGiven": "KEY_1791029210112_A61A92A0",
+      "createdAt": 1791099728263
+    }
+  },
+  "getkeyLogs": [
+    {
+      "ip": "127.0.0.1",
+      "code": "MYCUTEEE",
+      "keyGiven": "KEY_1791029210112_A61A92A0",
+      "time": 1791099896997
+    }
+  ],
+  "dailyGetkey": {
+    "2026-10-04": {
+      "127.0.0.1": 1
+    }
   }
 }
