@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -43,7 +44,10 @@ button.ok { background: #10b981; }
 button.ok:hover { background: #059669; }
 button.magic { background: #a855f7; }
 button.magic:hover { background: #9333ea; }
-button.small { padding: 5px 9px; font-size: 12px; width: auto; margin: 2px; }
+button.small {
+    padding: 5px 9px; font-size: 12px;
+    width: auto; margin: 2px;
+}
 .row { display: flex; gap: 8px; flex-wrap: wrap; margin: 4px 0; }
 .row > * { flex: 1; min-width: 140px; }
 
@@ -101,16 +105,6 @@ tr:hover td { background: #0f172a; }
 .log-item .time { color: #64748b; font-size: 11px; }
 .empty { text-align: center; padding: 30px; color: #64748b; font-size: 13px; }
 
-.key-info {
-    display: grid; grid-template-columns: 1fr 1fr;
-    gap: 8px; margin-top: 12px; font-size: 13px;
-}
-.key-info > div {
-    background: #020617; padding: 8px 10px; border-radius: 6px;
-}
-.key-info .label { color: #64748b; font-size: 11px; }
-.key-info .value { color: #38bdf8; font-weight: bold; word-break: break-all; }
-
 .toast {
     position: fixed; bottom: 20px; right: 20px;
     background: #1e293b; border: 1px solid #38bdf8;
@@ -141,7 +135,7 @@ tr:hover td { background: #0f172a; }
 <div id="panel" class="container hidden">
     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px">
         <div>
-            <h1>🎛️ Manager <span style="color:#64748b; font-size:14px">v7.1</span></h1>
+            <h1>🎛️ Manager <span style="color:#64748b; font-size:14px">v7.0</span></h1>
             <p class="subtitle">Quản lý MoSlot + Magic</p>
         </div>
         <button class="small danger" onclick="logout()">🚪 Đăng xuất</button>
@@ -154,8 +148,6 @@ tr:hover td { background: #0f172a; }
         <div class="tab" onclick="switchTab('rewards-moslot', this)">🎁 Rewards MoSlot</div>
         <div class="tab magic-tab" onclick="switchTab('rewards-magic', this)">🎁 Rewards Magic</div>
         <div class="tab" onclick="switchTab('users', this)">👥 Users</div>
-        <div class="tab" onclick="switchTab('web-users', this)">🌐 Web Users</div>
-        <div class="tab" onclick="switchTab('search-key', this)">🔍 Tìm Key</div>
         <div class="tab" onclick="switchTab('logs', this)">📜 Logs</div>
     </div>
 
@@ -198,7 +190,6 @@ tr:hover td { background: #0f172a; }
                 <div class="stat"><div class="num" id="statMoslotKeys">-</div><div class="label">Key MoSlot</div></div>
                 <div class="stat"><div class="num magic" id="statMagicKeys">-</div><div class="label">Key Magic</div></div>
                 <div class="stat"><div class="num" id="statUsers">-</div><div class="label">Users</div></div>
-                <div class="stat"><div class="num" id="statWebUsers">-</div><div class="label">Web Users</div></div>
                 <div class="stat"><div class="num" id="statSessions">-</div><div class="label">Sessions</div></div>
                 <div class="stat"><div class="num" id="statLogs">-</div><div class="label">Logs</div></div>
             </div>
@@ -356,67 +347,6 @@ tr:hover td { background: #0f172a; }
         </div>
     </div>
 
-    <!-- TAB WEB USERS -->
-    <div id="tab-web-users" class="tab-content">
-        <div class="card">
-            <h2>📊 Thống kê Web Users</h2>
-            <div class="stats">
-                <div class="stat"><div class="num" id="webTotal">-</div><div class="label">Tổng lấy key</div></div>
-                <div class="stat"><div class="num" id="webUnused">-</div><div class="label">Chưa dùng tool</div></div>
-                <div class="stat"><div class="num" id="webUsed">-</div><div class="label">Đã dùng tool</div></div>
-                <div class="stat"><div class="num" id="webMoslot">-</div><div class="label">MoSlot</div></div>
-                <div class="stat"><div class="num magic" id="webMagic">-</div><div class="label">Magic</div></div>
-            </div>
-        </div>
-
-        <div class="card">
-            <h2>🌐 Ai đã lấy key qua web</h2>
-            <div class="row">
-                <select id="webFilterTool" onchange="loadWebUsers()">
-                    <option value="">-- Tất cả tool --</option>
-                    <option value="moslot">MoSlot</option>
-                    <option value="magic">Magic</option>
-                </select>
-                <select id="webFilterStatus" onchange="loadWebUsers()">
-                    <option value="">-- Tất cả trạng thái --</option>
-                    <option value="unused">🆓 Chưa dùng tool</option>
-                    <option value="used">✅ Đã dùng tool</option>
-                </select>
-                <button class="small" onclick="loadWebUsers()">🔄 Tải lại</button>
-            </div>
-            <div style="overflow-x:auto; margin-top:10px">
-                <table id="webUsersTable">
-                    <thead>
-                        <tr>
-                            <th>Thời gian</th>
-                            <th>IP</th>
-                            <th>Tool</th>
-                            <th>Mã</th>
-                            <th>Key đã cấp</th>
-                            <th>UNIQ_ID</th>
-                            <th>Gmail</th>
-                            <th>Server</th>
-                            <th>Trạng thái</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <!-- TAB SEARCH KEY -->
-    <div id="tab-search-key" class="tab-content">
-        <div class="card">
-            <h2>🔍 Tìm người dùng theo KEY</h2>
-            <div class="row">
-                <input type="text" id="searchKeyInput" placeholder="Nhập key (VD: KEY_1791xxx)" style="font-family: monospace">
-                <button class="small" onclick="searchByKey()">🔍 Tìm</button>
-            </div>
-            <div id="searchKeyResult" style="margin-top:14px"></div>
-        </div>
-    </div>
-
     <!-- TAB LOGS -->
     <div class="tab-content" id="tab-logs">
         <div class="card">
@@ -426,6 +356,15 @@ tr:hover td { background: #0f172a; }
                 <button class="small" onclick="loadLogs()">🔄 Tải lại</button>
             </div>
             <div id="logsBox" style="margin-top:10px; max-height:600px; overflow-y:auto"></div>
+        </div>
+    </div>
+
+    <!-- TAB REWARD LOGS -->
+    <div class="tab-content" id="tab-reward-logs">
+        <div class="card">
+            <h2>📜 Lịch sử lấy key</h2>
+            <button class="small" onclick="loadGetkeyLogs()">🔄 Tải lại</button>
+            <div id="getkeyLogsBox" style="margin-top:10px; max-height:600px; overflow-y:auto"></div>
         </div>
     </div>
 
@@ -453,7 +392,7 @@ function showMsg(id, text, type = 'ok') {
 
 async function api(path, data, method = 'POST') {
     try {
-        const url = API + path + (method === 'GET' ? (path.includes('?') ? '&' : '?') + 'adminKey=' + encodeURIComponent(ADMIN_KEY) : '');
+        const url = API + path + (method === 'GET' ? '?adminKey=' + encodeURIComponent(ADMIN_KEY) : '');
         const opts = { method: method, headers: { 'Content-Type': 'application/json' } };
         if (method === 'POST') opts.body = JSON.stringify({ ...data, adminKey: ADMIN_KEY });
         const res = await fetch(url, opts);
@@ -510,8 +449,8 @@ function init() {
     loadRewards('moslot');
     loadRewards('magic');
     loadUsers();
-    loadWebUsers();
     loadLogs();
+    loadGetkeyLogs();
 }
 
 function switchTab(name, el) {
@@ -519,11 +458,11 @@ function switchTab(name, el) {
     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
     el.classList.add('active');
     document.getElementById('tab-' + name).classList.add('active');
+
     if (name === 'rewards-moslot') loadRewards('moslot');
     if (name === 'rewards-magic') loadRewards('magic');
     if (name === 'keys-moslot') loadKeys('moslot');
     if (name === 'keys-magic') loadKeys('magic');
-    if (name === 'web-users') loadWebUsers();
 }
 
 async function loadStats() {
@@ -534,7 +473,6 @@ async function loadStats() {
         document.getElementById('statMoslotKeys').textContent = d.moslotKeys ?? '-';
         document.getElementById('statMagicKeys').textContent = d.magicKeys ?? '-';
         document.getElementById('statUsers').textContent = d.totalUsers ?? '-';
-        document.getElementById('statWebUsers').textContent = d.totalWebUsers ?? '-';
         document.getElementById('statSessions').textContent = d.totalSessions ?? '-';
         document.getElementById('statLogs').textContent = d.totalLogs ?? '-';
     } catch (e) { toast('Không tải được stats', 'err'); }
@@ -768,150 +706,6 @@ async function loadUsers() {
     `).join('');
 }
 
-async function loadWebUsers() {
-    const tbody = document.querySelector('#webUsersTable tbody');
-    const filterTool = document.getElementById('webFilterTool').value;
-    const filterStatus = document.getElementById('webFilterStatus').value;
-
-    let url = '/api/admin/web-users?';
-    if (filterTool) url += 'toolType=' + filterTool + '&';
-    if (filterStatus) url += 'status=' + filterStatus + '&';
-
-    const res = await api(url, null, 'GET');
-
-    if (!res.success) {
-        tbody.innerHTML = '<tr><td colspan="9" class="empty">Lỗi tải dữ liệu</td></tr>';
-        return;
-    }
-
-    if (res.stats) {
-        document.getElementById('webTotal').textContent = res.stats.total ?? 0;
-        document.getElementById('webUnused').textContent = res.stats.unused ?? 0;
-        document.getElementById('webUsed').textContent = res.stats.used ?? 0;
-        document.getElementById('webMoslot').textContent = res.stats.moslot ?? 0;
-        document.getElementById('webMagic').textContent = res.stats.magic ?? 0;
-    }
-
-    if (!res.users || res.users.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="9" class="empty">Chưa ai lấy key</td></tr>';
-        return;
-    }
-
-    tbody.innerHTML = res.users.map(u => `
-        <tr>
-            <td>${formatTime(u.time)}</td>
-            <td class="key">${escapeHtml(u.ip || '-')}</td>
-            <td>${u.toolType === 'magic' ? '<span class="badge magic-badge">✨ Magic</span>' : '<span class="badge on">🎮 MoSlot</span>'}</td>
-            <td class="key">${escapeHtml(u.code || '-')}</td>
-            <td class="key">${escapeHtml(u.keyGiven ? u.keyGiven.substring(0, 25) + '...' : '-')}</td>
-            <td class="key">${escapeHtml(u.uniqId || '-')}</td>
-            <td class="key">${escapeHtml(u.hostId || '-')}</td>
-            <td>${escapeHtml(u.platform || '-')}</td>
-            <td>${u.keyStatus === 'used'
-                ? '<span class="badge on">✅ Đã dùng</span>'
-                : '<span class="badge warn-badge">🆓 Chưa dùng</span>'}</td>
-        </tr>
-    `).join('');
-}
-
-async function searchByKey() {
-    const key = document.getElementById('searchKeyInput').value.trim();
-    const box = document.getElementById('searchKeyResult');
-
-    if (!key) {
-        box.innerHTML = '<div class="msg show err" style="display:block">Vui lòng nhập key!</div>';
-        return;
-    }
-
-    box.innerHTML = '<div class="empty">Đang tìm...</div>';
-
-    const res = await api('/api/admin/search-by-key?key=' + encodeURIComponent(key), null, 'GET');
-
-    if (!res.success) {
-        box.innerHTML = '<div class="msg show err" style="display:block">❌ ' + escapeHtml(res.message || 'Không tìm thấy') + '</div>';
-        return;
-    }
-
-    let html = '';
-
-    if (res.keyInfo) {
-        html += `
-            <div class="card" style="background:#0f172a">
-                <h2>🔑 Thông tin KEY</h2>
-                <div class="key-info">
-                    <div><div class="label">Tool</div><div class="value">${res.keyInfo.toolType === 'magic' ? '✨ Magic' : '🎮 MoSlot'}</div></div>
-                    <div><div class="label">Lượt</div><div class="value">${res.keyInfo.used}/${res.keyInfo.maxUses}</div></div>
-                    <div><div class="label">Trạng thái</div><div class="value">${res.keyInfo.active ? '🟢 Active' : '🔴 Disabled'}</div></div>
-                    <div><div class="label">HWID</div><div class="value">${escapeHtml(res.keyInfo.hwid || 'Chưa dùng')}</div></div>
-                    <div><div class="label">Hết hạn</div><div class="value">${escapeHtml(res.keyInfo.expiry || '-')}</div></div>
-                    <div><div class="label">Ghi chú</div><div class="value">${escapeHtml(res.keyInfo.note || '-')}</div></div>
-                </div>
-            </div>
-        `;
-    }
-
-    if (res.reward) {
-        html += `
-            <div class="card" style="background:#0f172a">
-                <h2>🎁 Từ vượt link</h2>
-                <div class="key-info">
-                    <div><div class="label">Mã</div><div class="value">${escapeHtml(res.reward.code)}</div></div>
-                    <div><div class="label">Nhà cung cấp</div><div class="value">${escapeHtml(res.reward.provider || '-')}</div></div>
-                    <div style="grid-column:1/-1"><div class="label">Link</div><div class="value" style="word-break:break-all">${escapeHtml(res.reward.link || '-')}</div></div>
-                </div>
-            </div>
-        `;
-    }
-
-    if (res.webUser) {
-        html += `
-            <div class="card" style="background:#0f172a">
-                <h2>🌐 Người lấy key qua web</h2>
-                <div class="key-info">
-                    <div><div class="label">IP</div><div class="value">${escapeHtml(res.webUser.ip || '-')}</div></div>
-                    <div><div class="label">Thời gian</div><div class="value">${formatTime(res.webUser.time)}</div></div>
-                    <div><div class="label">UNIQ_ID</div><div class="value">${escapeHtml(res.webUser.uniqId || 'Chưa dùng')}</div></div>
-                    <div><div class="label">Gmail</div><div class="value">${escapeHtml(res.webUser.hostId || '-')}</div></div>
-                    <div><div class="label">Username</div><div class="value">${escapeHtml(res.webUser.username || '-')}</div></div>
-                    <div><div class="label">Server</div><div class="value">${escapeHtml(res.webUser.platform || '-')}</div></div>
-                </div>
-            </div>
-        `;
-    }
-
-    if (res.toolUser) {
-        html += `
-            <div class="card" style="background:#0f172a">
-                <h2>👤 Người dùng tool</h2>
-                <div class="key-info">
-                    <div><div class="label">UNIQ_ID</div><div class="value">${escapeHtml(res.toolUser.uniqId || '-')}</div></div>
-                    <div><div class="label">Gmail</div><div class="value">${escapeHtml(res.toolUser.hostId || '-')}</div></div>
-                    <div><div class="label">Username</div><div class="value">${escapeHtml(res.toolUser.username || '-')}</div></div>
-                    <div><div class="label">Server</div><div class="value">${escapeHtml(res.toolUser.platform || '-')}</div></div>
-                    <div><div class="label">Lần đầu</div><div class="value">${formatTime(res.toolUser.firstSeen)}</div></div>
-                    <div><div class="label">Lần cuối</div><div class="value">${formatTime(res.toolUser.lastSeen)}</div></div>
-                </div>
-            </div>
-        `;
-    }
-
-    if (res.logs && res.logs.length > 0) {
-        html += `
-            <div class="card" style="background:#0f172a">
-                <h2>📜 Lịch sử dùng key</h2>
-                ${res.logs.map(l => `
-                    <div class="log-item ${l.status === 'SUCCESS' ? 'success' : 'fail'}">
-                        <div class="time">${formatTime(l.timestamp)} · ${escapeHtml(l.action)}</div>
-                        <div>${escapeHtml(l.message || '')}</div>
-                    </div>
-                `).join('')}
-            </div>
-        `;
-    }
-
-    box.innerHTML = html;
-}
-
 async function loadLogs() {
     const box = document.getElementById('logsBox');
     const filterKey = document.getElementById('logFilterKey').value.trim();
@@ -936,6 +730,22 @@ async function loadLogs() {
             </div>
         `;
     }).join('');
+}
+
+async function loadGetkeyLogs() {
+    const box = document.getElementById('getkeyLogsBox');
+    const res = await api('/api/admin/getkey-logs', null, 'GET');
+    if (!res.success || !res.logs || res.logs.length === 0) {
+        box.innerHTML = '<div class="empty">Chưa có ai lấy key</div>';
+        return;
+    }
+    box.innerHTML = res.logs.map(l => `
+        <div class="log-item ${l.toolType === 'magic' ? 'magic' : 'success'}">
+            <div class="time">${formatTime(l.time)} · IP: ${escapeHtml(l.ip || '')}</div>
+            <div><strong>Mã:</strong> ${escapeHtml(l.code)} | <strong>Loại:</strong> ${escapeHtml((l.toolType || 'moslot').toUpperCase())}</div>
+            <div class="key"><strong>Key đã cấp:</strong> ${escapeHtml(l.keyGiven || '')}</div>
+        </div>
+    `).join('');
 }
 
 setInterval(() => {
