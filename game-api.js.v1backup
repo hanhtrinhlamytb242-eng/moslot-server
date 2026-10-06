@@ -132,37 +132,8 @@ async function expandHeroSlot(platform, uniqId, hostId, gichapo, runCount, heroD
     }
 }
 
-// ===== HACK MAGIC =====
-async function hackMagic(platform, uniqId, hostId, gichapo) {
-    const payload = {
-        SGS: true,
-        LANG: 3,
-        PICK: 7,
-        PICK_NAME: "MAGIC",
-        PICK_AMOUNT: "100",
-        UNIQ_ID: uniqId,
-        PLATFORM: platform,
-        MOBILE_CONNECT: "",
-        GICHAPO: gichapo
-    };
-
-    const enc = encryptAES2(payload);
-    const url = `http://211.253.26.47:8093/TOWERDEFENCE_COMMON/EVENT_MENU/eventmenu_shopping.php`;
-    const body = `DATA=${encodeURIComponent(enc)}`;
-
-    const res = await postRequest(url, body);
-
-    try {
-        const dec = decryptAES2(res);
-        return JSON.parse(dec || res);
-    } catch (e) {
-        return { RAW: res, ERROR: e.message };
-    }
-}
-
 // ===== EXPORT =====
 module.exports = {
     fetchUserData,
-    expandHeroSlot,
-    hackMagic
+    expandHeroSlot
 };

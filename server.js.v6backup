@@ -1,6 +1,6 @@
 // ============================================================
 // TOOL SERVER - Quản lý license + Hệ thống vượt link
-// Phiên bản: 7.0.0 (Thêm Hack Magic)
+// Phiên bản: 6.0.0 (Thêm Rewards System)
 // ============================================================
 
 require('dotenv').config();
@@ -31,15 +31,13 @@ const DATA_FILE = path.join(__dirname, 'data.json');
 function initData() {
     if (!fs.existsSync(DATA_FILE)) {
         const defaultData = {
-            keys: {}, logs: [], sessions: {}, magicSessions: {}, users: {},
-            rewards: {},
-            getkeyLogs: [],
-            dailyGetkey: {},
+            keys: {}, logs: [], sessions: {}, users: {},
+            rewards: {},        // ← MỚI: Mã reward
+            getkeyLogs: [],     // ← MỚI: Log khách lấy key
+            dailyGetkey: {},    // ← MỚI: Rate limit
             settings: {
                 toolEnabled: true,
-                magicEnabled: true,
-                message: 'Tool đang bảo trì hệ thống, sẽ mở lại sau',
-                magicMessage: 'Tool Magic đang bảo trì, sẽ mở lại sau'
+                message: 'Tool đang bảo trì hệ thống, sẽ mở lại sau'
             }
         };
         fs.writeFileSync(DATA_FILE, JSON.stringify(defaultData, null, 2));
@@ -48,26 +46,13 @@ function initData() {
     if (!data.keys) data.keys = {};
     if (!data.logs) data.logs = [];
     if (!data.sessions) data.sessions = {};
-    if (!data.magicSessions) data.magicSessions = {};
     if (!data.users) data.users = {};
     if (!data.rewards) data.rewards = {};
     if (!data.getkeyLogs) data.getkeyLogs = [];
     if (!data.dailyGetkey) data.dailyGetkey = {};
-    if (!data.settings) data.settings = {};
+    if (!data.settings) data.settings = { toolEnabled: true, message: 'Tool đang bảo trì hệ thống, sẽ mở lại sau' };
     if (data.settings.toolEnabled === undefined) data.settings.toolEnabled = true;
-    if (data.settings.magicEnabled === undefined) data.settings.magicEnabled = true;
     if (!data.settings.message) data.settings.message = 'Tool đang bảo trì hệ thống, sẽ mở lại sau';
-    if (!data.settings.magicMessage) data.settings.magicMessage = 'Tool Magic đang bảo trì, sẽ mở lại sau';
-
-    // Đảm bảo mọi key cũ đều có toolType
-    for (const k of Object.keys(data.keys)) {
-        if (!data.keys[k].toolType) data.keys[k].toolType = 'moslot';
-    }
-    // Đảm bảo mọi reward cũ đều có toolType
-    for (const c of Object.keys(data.rewards)) {
-        if (!data.rewards[c].toolType) data.rewards[c].toolType = 'moslot';
-    }
-
     return data;
 }
 
@@ -76,9 +61,7 @@ function saveData(data) {
 }
 
 function getClientIp(req) {
-    return req.headers['cf-connecting-ip']
-        || req.headers['x-real-ip']
-        || req.headers['x-forwarded-for']?.split(',')[0].trim()
+    return req.headers['x-forwarded-for']?.split(',')[0].trim()
         || req.socket.remoteAddress
         || 'unknown';
 }
@@ -104,30 +87,29 @@ function adminAuth(req, res, next) {
 // API GỐC
 // ============================================================
 app.get('/', (req, res) => {
-    res.json({ name: 'MoSlot Tool Server', version: '7.0.0', status: 'running' });
+    res.json({ name: 'MoSlot Tool Server', version: '6.0.0', status: 'running' });
 });
 
+// ============================================================
+// API HEALTH
+// ============================================================
 app.get('/api/health', (req, res) => {
     const data = initData();
-    const allKeys = Object.values(data.keys);
     res.json({
         status: 'ok',
         timestamp: new Date().toISOString(),
-        totalKeys: allKeys.length,
-        moslotKeys: allKeys.filter(k => (k.toolType || 'moslot') === 'moslot').length,
-        magicKeys: allKeys.filter(k => k.toolType === 'magic').length,
-        activeKeys: allKeys.filter(k => k.active).length,
-        totalSessions: Object.keys(data.sessions).length + Object.keys(data.magicSessions).length,
+        totalKeys: Object.keys(data.keys).length,
+        activeKeys: Object.values(data.keys).filter(k => k.active).length,
+        totalSessions: Object.keys(data.sessions).length,
         totalUsers: Object.keys(data.users).length,
         totalLogs: data.logs.length,
         totalRewards: Object.keys(data.rewards).length,
-        toolEnabled: data.settings.toolEnabled,
-        magicEnabled: data.settings.magicEnabled
+        toolEnabled: data.settings.toolEnabled
     });
 });
 
 // ============================================================
-// API STATUS (MOSLOT)
+// API STATUS
 // ============================================================
 app.get('/api/status', (req, res) => {
     const data = initData();
@@ -139,19 +121,7 @@ app.get('/api/status', (req, res) => {
 });
 
 // ============================================================
-// API STATUS (MAGIC)
-// ============================================================
-app.get('/api/magic/status', (req, res) => {
-    const data = initData();
-    res.json({
-        success: true,
-        enabled: data.settings.magicEnabled !== false,
-        message: data.settings.magicMessage || 'Tool Magic đang bảo trì, sẽ mở lại sau'
-    });
-});
-
-// ============================================================
-// API START-TOOL (MOSLOT)
+// API START-TOOL
 // ============================================================
 app.post('/api/start-tool', async (req, res) => {
     const { key, uniqId, username, platform, hostId, deviceId } = req.body;
@@ -184,22 +154,12 @@ app.post('/api/start-tool', async (req, res) => {
         }
 
         const keyData = data.keys[key];
-
-        // ===== CHECK toolType =====
-        if ((keyData.toolType || 'moslot') !== 'moslot') {
-            return res.json({
-                success: false,
-                message: 'Key này dành cho tool khác! Vui lòng dùng key đúng loại.',
-                code: 'WRONG_TOOL'
-            });
-        }
-
         if (keyData.maxUses === undefined) keyData.maxUses = keyData.totalUses ?? 999;
         if (keyData.used === undefined) keyData.used = keyData.usedUses ?? 0;
         if (keyData.active === undefined) keyData.active = keyData.status === 'active';
         if (!keyData.expiry) keyData.expiry = '2099-12-31';
 
-        // ===== CHECK HWID =====
+        // ===== CHECK HWID (1 KEY = 1 MÁY) =====
         if (deviceId) {
             if (!keyData.hwid) {
                 keyData.hwid = deviceId;
@@ -210,7 +170,7 @@ app.post('/api/start-tool', async (req, res) => {
                     timestamp: now, key, action: 'START_FAILED',
                     status: 'WRONG_HWID', ip: clientIp,
                     username: username || 'unknown', platform, uniqId, hostId,
-                    message: `HWID không khớp.`
+                    message: `HWID không khớp. Key thuộc máy khác.`
                 });
                 saveData(data);
                 return res.json({
@@ -294,7 +254,7 @@ app.post('/api/start-tool', async (req, res) => {
             timestamp: now, key, action: 'START_SUCCESS',
             username: info.userName || 'unknown', platform, uniqId, hostId,
             status: 'SUCCESS', ip: clientIp, sessionToken: token,
-            message: `Bắt đầu session MoSlot. Còn ${keyData.maxUses - keyData.used} lượt`
+            message: `Bắt đầu session. Còn ${keyData.maxUses - keyData.used} lượt`
         });
 
         saveData(data);
@@ -321,7 +281,7 @@ app.post('/api/start-tool', async (req, res) => {
 });
 
 // ============================================================
-// API OPEN-SLOT (MOSLOT)
+// API OPEN-SLOT
 // ============================================================
 app.post('/api/open-slot', async (req, res) => {
     const { token, count } = req.body;
@@ -443,7 +403,7 @@ app.post('/api/open-slot', async (req, res) => {
 });
 
 // ============================================================
-// API END-TOOL (MOSLOT)
+// API END-TOOL
 // ============================================================
 app.post('/api/end-tool', (req, res) => {
     const { token } = req.body;
@@ -456,300 +416,21 @@ app.post('/api/end-tool', (req, res) => {
 });
 
 // ============================================================
-// ===== MAGIC TOOL API =====
+// ===== HỆ THỐNG LẤY KEY QUA VƯỢT LINK =====
 // ============================================================
 
-// API MAGIC — START
-app.post('/api/magic/start', async (req, res) => {
-    const { key, uniqId, username, platform, hostId, deviceId } = req.body;
-    const data = initData();
-    const clientIp = req.clientIp;
-    const now = new Date().toISOString();
-
-    try {
-        if (data.settings.magicEnabled === false) {
-            return res.json({
-                success: false,
-                message: data.settings.magicMessage || 'Tool Magic đang bảo trì, sẽ mở lại sau',
-                code: 'TOOL_DISABLED'
-            });
-        }
-
-        if (!key) return res.json({ success: false, message: 'Thiếu key!', code: 'NO_KEY' });
-        if (!uniqId) return res.json({ success: false, message: 'Thiếu UNIQ_ID!', code: 'NO_UNIQ' });
-        if (!platform) return res.json({ success: false, message: 'Thiếu platform!', code: 'NO_PLATFORM' });
-
-        if (!data.keys[key]) {
-            data.logs.push({
-                timestamp: now, key, action: 'MAGIC_START_FAILED',
-                username: username || 'unknown', platform, uniqId, hostId,
-                status: 'KEY_NOT_FOUND', ip: clientIp,
-                message: 'Key không tồn tại'
-            });
-            saveData(data);
-            return res.json({ success: false, message: 'Key không tồn tại!', code: 'KEY_NOT_FOUND' });
-        }
-
-        const keyData = data.keys[key];
-
-        // ===== CHECK toolType =====
-        if (keyData.toolType !== 'magic') {
-            return res.json({
-                success: false,
-                message: 'Key này không dành cho tool Magic! Vui lòng dùng key Magic.',
-                code: 'WRONG_TOOL'
-            });
-        }
-
-        if (keyData.maxUses === undefined) keyData.maxUses = 999;
-        if (keyData.used === undefined) keyData.used = 0;
-        if (keyData.active === undefined) keyData.active = true;
-        if (!keyData.expiry) keyData.expiry = '2099-12-31';
-
-        // ===== CHECK HWID =====
-        if (deviceId) {
-            if (!keyData.hwid) {
-                keyData.hwid = deviceId;
-                keyData.firstUsedAt = now;
-                console.log(`🔒 [Magic] Key ${key} gắn với HWID: ${deviceId}`);
-            } else if (keyData.hwid !== deviceId) {
-                data.logs.push({
-                    timestamp: now, key, action: 'MAGIC_START_FAILED',
-                    status: 'WRONG_HWID', ip: clientIp,
-                    username: username || 'unknown', platform, uniqId, hostId,
-                    message: `HWID không khớp.`
-                });
-                saveData(data);
-                return res.json({
-                    success: false,
-                    message: 'KEY đã được sử dụng trên máy khác! Mỗi key chỉ dùng được 1 máy.',
-                    code: 'WRONG_HWID'
-                });
-            }
-        }
-
-        if (!keyData.active) {
-            data.logs.push({ timestamp: now, key, action: 'MAGIC_START_FAILED', status: 'KEY_DISABLED', ip: clientIp, message: 'Key bị vô hiệu hóa' });
-            saveData(data);
-            return res.json({ success: false, message: 'Key đã bị vô hiệu hóa!', code: 'KEY_DISABLED' });
-        }
-
-        if (new Date(keyData.expiry) < new Date()) {
-            data.logs.push({ timestamp: now, key, action: 'MAGIC_START_FAILED', status: 'KEY_EXPIRED', ip: clientIp, message: 'Key hết hạn' });
-            saveData(data);
-            return res.json({ success: false, message: 'Key đã hết hạn!', code: 'KEY_EXPIRED' });
-        }
-
-        if (keyData.used >= keyData.maxUses) {
-            data.logs.push({ timestamp: now, key, action: 'MAGIC_START_FAILED', status: 'KEY_EXHAUSTED', ip: clientIp, message: 'Key hết lượt' });
-            saveData(data);
-            return res.json({ success: false, message: 'Key đã hết lượt sử dụng!', code: 'KEY_EXHAUSTED' });
-        }
-
-        let info;
-        try {
-            info = await gameApi.fetchUserData(platform, uniqId, hostId);
-        } catch (gameErr) {
-            data.logs.push({
-                timestamp: now, key, action: 'MAGIC_START_FAILED', status: 'GAME_API_ERROR',
-                username: username || 'unknown', platform, uniqId, hostId, ip: clientIp,
-                message: 'Lỗi gọi server game: ' + gameErr.message
-            });
-            saveData(data);
-            return res.json({
-                success: false,
-                message: 'Không lấy được dữ liệu tài khoản: ' + gameErr.message,
-                code: 'GAME_API_ERROR'
-            });
-        }
-
-        const token = crypto.randomBytes(32).toString('hex');
-        data.magicSessions[token] = {
-            key,
-            deviceId: deviceId || 'unknown',
-            username: info.userName || username || 'unknown',
-            platform, uniqId, hostId,
-            connectedAt: now, lastActive: now, ip: clientIp,
-            sessionData: {
-                gichapo: info.gichapo,
-                magic: info.magic || 0
-            }
-        };
-
-        if (uniqId) {
-            if (!data.users[uniqId]) {
-                data.users[uniqId] = {
-                    uniqId, hostId: hostId || 'unknown',
-                    username: info.userName || 'unknown',
-                    platform, keyUsed: key,
-                    firstSeen: now, lastSeen: now, totalUses: 1
-                };
-            } else {
-                data.users[uniqId].lastSeen = now;
-                data.users[uniqId].totalUses = (data.users[uniqId].totalUses || 0) + 1;
-                data.users[uniqId].hostId = hostId || data.users[uniqId].hostId;
-                data.users[uniqId].username = info.userName || data.users[uniqId].username;
-                data.users[uniqId].platform = platform;
-                data.users[uniqId].keyUsed = key;
-            }
-        }
-
-        data.logs.push({
-            timestamp: now, key, action: 'MAGIC_START_SUCCESS',
-            username: info.userName || 'unknown', platform, uniqId, hostId,
-            status: 'SUCCESS', ip: clientIp, sessionToken: token,
-            message: `Bắt đầu session Magic. Còn ${keyData.maxUses - keyData.used} lượt`
-        });
-
-        saveData(data);
-
-        res.json({
-            success: true,
-            token,
-            message: `Kết nối thành công! Còn ${keyData.maxUses - keyData.used} lượt hack`,
-            data: {
-                userName: info.userName,
-                version: info.version,
-                magic: info.magic || 0,
-                ruby: info.ruby || 0,
-                gold: info.gold || 0,
-                dia: info.dia || 0,
-                mileage: info.mileage || 0,
-                remaining: keyData.maxUses - keyData.used
-            }
-        });
-
-    } catch (err) {
-        console.error('❌ magic/start error:', err);
-        return res.json({ success: false, message: 'Lỗi server: ' + err.message });
-    }
-});
-
-// API MAGIC — HACK
-app.post('/api/magic/hack', async (req, res) => {
-    const { token, count } = req.body;
-    const data = initData();
-    const clientIp = req.clientIp;
-    const now = new Date().toISOString();
-
-    try {
-        if (!token || !data.magicSessions[token]) {
-            return res.json({ success: false, message: 'Session không hợp lệ! Vui lòng chạy lại tool.', code: 'NO_SESSION' });
-        }
-
-        const session = data.magicSessions[token];
-        const keyData = data.keys[session.key];
-
-        if (data.settings.magicEnabled === false) {
-            return res.json({ success: false, message: data.settings.magicMessage, code: 'TOOL_DISABLED' });
-        }
-
-        if (keyData.used >= keyData.maxUses) {
-            return res.json({ success: false, message: 'Key đã hết lượt sử dụng!', code: 'KEY_EXHAUSTED' });
-        }
-
-        const hackCount = Math.max(1, Math.min(parseInt(count) || 1, 100));
-        const remaining = keyData.maxUses - keyData.used;
-        const actualCount = Math.min(hackCount, remaining);
-
-        session.lastActive = now;
-
-        let successCount = 0;
-        let failCount = 0;
-        let totalMagic = 0;
-        const results = [];
-
-        for (let i = 1; i <= actualCount; i++) {
-            if (i === 1) {
-                await new Promise(r => setTimeout(r, 3000));
-            } else {
-                await new Promise(r => setTimeout(r, 2000));
-            }
-
-            try {
-                const result = await gameApi.hackMagic(
-                    session.platform, session.uniqId, session.hostId,
-                    session.sessionData.gichapo
-                );
-
-                if (result && result.RESULT === "OK") {
-                    // ===== CAP 30 ĐÁ/LẦN =====
-                    const magicReceived = 30;
-                    totalMagic += magicReceived;
-                    successCount++;
-                    results.push({ index: i, success: true, magic: magicReceived });
-                } else {
-                    failCount++;
-                    results.push({ index: i, success: false, error: 'RESULT != OK' });
-                }
-            } catch (e) {
-                failCount++;
-                results.push({ index: i, success: false, error: e.message });
-            }
-        }
-
-        // Chỉ trừ lượt theo số lần hack thành công
-        keyData.used += successCount;
-
-        data.logs.push({
-            timestamp: now, key: session.key, action: 'MAGIC_HACK',
-            username: session.username, platform: session.platform,
-            uniqId: session.uniqId, hostId: session.hostId,
-            status: successCount > 0 ? 'SUCCESS' : 'FAILED',
-            ip: clientIp, sessionToken: token,
-            message: `Hack ${actualCount} lần: ${successCount} OK, ${failCount} fail, +${totalMagic} đá`
-        });
-
-        saveData(data);
-
-        res.json({
-            success: true,
-            message: `Đã hack ${successCount}/${actualCount} lần thành công, +${totalMagic} đá tím`,
-            data: {
-                total: actualCount,
-                success: successCount,
-                failed: failCount,
-                magicReceived: totalMagic,
-                remaining: keyData.maxUses - keyData.used,
-                results
-            }
-        });
-
-    } catch (err) {
-        console.error('❌ magic/hack error:', err);
-        return res.json({ success: false, message: 'Lỗi server: ' + err.message });
-    }
-});
-
-// API MAGIC — END
-app.post('/api/magic/end', (req, res) => {
-    const { token } = req.body;
-    const data = initData();
-    if (token && data.magicSessions[token]) {
-        delete data.magicSessions[token];
-        saveData(data);
-    }
-    res.json({ success: true, message: 'Đã kết thúc session Magic' });
-});
-
-// ============================================================
-// GETKEY SYSTEM
-// ============================================================
+// API GETKEY — START
 app.post('/api/getkey/start', (req, res) => {
-    const { toolType } = req.body;
     const data = initData();
-    const filterType = toolType === 'magic' ? 'magic' : 'moslot';
 
-    if (filterType === 'moslot' && data.settings.toolEnabled === false) {
-        return res.json({ success: false, message: data.settings.message });
-    }
-    if (filterType === 'magic' && data.settings.magicEnabled === false) {
-        return res.json({ success: false, message: data.settings.magicMessage });
+    if (data.settings.toolEnabled === false) {
+        return res.json({
+            success: false,
+            message: data.settings.message || 'Hệ thống đang bảo trì, vui lòng thử lại sau'
+        });
     }
 
-    const availableRewards = Object.values(data.rewards).filter(r =>
-        !r.used && (r.toolType || 'moslot') === filterType
-    );
+    const availableRewards = Object.values(data.rewards).filter(r => !r.used);
 
     if (availableRewards.length === 0) {
         return res.json({
@@ -765,11 +446,11 @@ app.post('/api/getkey/start', (req, res) => {
         success: true,
         link: randomReward.link,
         provider: randomReward.provider || 'Khác',
-        toolType: filterType,
         message: 'Bấm vào link để vượt, sau đó nhập mã xác nhận'
     });
 });
 
+// API GETKEY — VERIFY
 app.post('/api/getkey/verify', (req, res) => {
     let { code } = req.body;
     code = (code || '').trim().toUpperCase();
@@ -777,6 +458,10 @@ app.post('/api/getkey/verify', (req, res) => {
     const data = initData();
     const now = Date.now();
     const today = new Date().toISOString().split('T')[0];
+
+    if (data.settings.toolEnabled === false) {
+        return res.json({ success: false, message: 'Hệ thống đang bảo trì' });
+    }
 
     if (!code || code.length < 3) {
         return res.json({ success: false, message: 'Mã không hợp lệ!' });
@@ -806,20 +491,7 @@ app.post('/api/getkey/verify', (req, res) => {
         });
     }
 
-    const rewardToolType = reward.toolType || 'moslot';
-
-    // Check tool có bật không
-    if (rewardToolType === 'moslot' && data.settings.toolEnabled === false) {
-        return res.json({ success: false, message: data.settings.message });
-    }
-    if (rewardToolType === 'magic' && data.settings.magicEnabled === false) {
-        return res.json({ success: false, message: data.settings.magicMessage });
-    }
-
     const availableKeys = Object.entries(data.keys).filter(([k, kd]) => {
-        const kdToolType = kd.toolType || 'moslot';
-        if (kdToolType !== rewardToolType) return false;
-
         const active = kd.active !== undefined ? kd.active : (kd.status === 'active');
         const used = kd.used !== undefined ? kd.used : (kd.usedUses || 0);
         const maxUses = kd.maxUses !== undefined ? kd.maxUses : (kd.totalUses || 999);
@@ -830,7 +502,7 @@ app.post('/api/getkey/verify', (req, res) => {
     if (availableKeys.length === 0) {
         return res.json({
             success: false,
-            message: `Hết key ${rewardToolType === 'magic' ? 'Magic' : 'MoSlot'} trong kho, vui lòng báo admin!`,
+            message: 'Hết key trong kho, vui lòng báo admin!',
             code: 'NO_KEYS_LEFT'
         });
     }
@@ -857,7 +529,6 @@ app.post('/api/getkey/verify', (req, res) => {
         ip: clientIp,
         code: code,
         keyGiven: newKey,
-        toolType: rewardToolType,
         time: now
     });
 
@@ -872,7 +543,7 @@ app.post('/api/getkey/verify', (req, res) => {
         uniqId: clientIp,
         status: 'SUCCESS',
         ip: clientIp,
-        message: `Cấp key ${rewardToolType.toUpperCase()} qua vượt link. Mã: ${code}`
+        message: `Cấp key qua vượt link. Mã: ${code}`
     });
 
     saveData(data);
@@ -881,7 +552,6 @@ app.post('/api/getkey/verify', (req, res) => {
         success: true,
         message: 'Chúc mừng! Bạn đã nhận được key',
         key: newKey,
-        toolType: rewardToolType,
         keyInfo: {
             maxUses: keyData.maxUses,
             used: keyData.used,
@@ -898,12 +568,11 @@ app.post('/api/getkey/verify', (req, res) => {
 });
 
 // ============================================================
-// ADMIN — TẠO KEY
+// API ADMIN — TẠO KEY
 // ============================================================
 app.post('/api/admin/create-key', adminAuth, (req, res) => {
-    const { type, expiry, maxUses, note, toolType } = req.body;
+    const { type, expiry, maxUses, note } = req.body;
     const data = initData();
-    const finalToolType = toolType === 'magic' ? 'magic' : 'moslot';
     const newKey = `KEY_${Date.now()}_${crypto.randomBytes(4).toString('hex').toUpperCase()}`;
 
     data.keys[newKey] = {
@@ -913,7 +582,6 @@ app.post('/api/admin/create-key', adminAuth, (req, res) => {
         used: 0,
         active: true,
         hwid: null,
-        toolType: finalToolType,
         createdBy: 'ADMIN',
         createdAt: new Date().toISOString(),
         note: note || 'Key mới'
@@ -923,7 +591,7 @@ app.post('/api/admin/create-key', adminAuth, (req, res) => {
         timestamp: new Date().toISOString(), key: newKey,
         action: 'KEY_CREATED', username: 'ADMIN', platform: 'ADMIN',
         uniqId: 'ADMIN', status: 'SUCCESS', ip: req.clientIp,
-        message: `Đã tạo key ${finalToolType.toUpperCase()}: ${newKey}`
+        message: `Đã tạo key mới: ${newKey}`
     });
 
     saveData(data);
@@ -931,28 +599,22 @@ app.post('/api/admin/create-key', adminAuth, (req, res) => {
 });
 
 // ============================================================
-// ADMIN — DANH SÁCH KEY
+// API ADMIN — DANH SÁCH KEY
 // ============================================================
 app.get('/api/admin/list-keys', adminAuth, (req, res) => {
-    const { toolType } = req.query;
     const data = initData();
-    let keyList = Object.keys(data.keys).map(k => {
+    const keyList = Object.keys(data.keys).map(k => {
         const kd = data.keys[k];
         const maxUses = kd.maxUses !== undefined ? kd.maxUses : (kd.totalUses !== undefined ? kd.totalUses : 999);
         const used = kd.used !== undefined ? kd.used : (kd.usedUses !== undefined ? kd.usedUses : 0);
         const active = kd.active !== undefined ? kd.active : (kd.status === 'active');
-        return { key: k, ...kd, toolType: kd.toolType || 'moslot', maxUses, used, active, remaining: maxUses - used };
+        return { key: k, ...kd, maxUses, used, active, remaining: maxUses - used };
     });
-
-    if (toolType === 'moslot' || toolType === 'magic') {
-        keyList = keyList.filter(k => k.toolType === toolType);
-    }
-
     res.json({ success: true, total: keyList.length, keys: keyList });
 });
 
 // ============================================================
-// ADMIN — SỬA KEY
+// API ADMIN — SỬA KEY
 // ============================================================
 app.post('/api/admin/update-key', adminAuth, (req, res) => {
     const { key, maxUses, used, note, expiry } = req.body;
@@ -994,7 +656,7 @@ app.post('/api/admin/update-key', adminAuth, (req, res) => {
 });
 
 // ============================================================
-// ADMIN — RESET HWID
+// API ADMIN — RESET HWID
 // ============================================================
 app.post('/api/admin/reset-hwid', adminAuth, (req, res) => {
     const { key } = req.body;
@@ -1016,7 +678,7 @@ app.post('/api/admin/reset-hwid', adminAuth, (req, res) => {
 });
 
 // ============================================================
-// ADMIN — XOÁ KEY
+// API ADMIN — XOÁ KEY
 // ============================================================
 app.post('/api/admin/delete-key', adminAuth, (req, res) => {
     const { key } = req.body;
@@ -1029,7 +691,7 @@ app.post('/api/admin/delete-key', adminAuth, (req, res) => {
 });
 
 // ============================================================
-// ADMIN — DISABLE / ENABLE KEY
+// API ADMIN — DISABLE / ENABLE KEY
 // ============================================================
 app.post('/api/admin/disable-key', adminAuth, (req, res) => {
     const { key } = req.body;
@@ -1054,7 +716,7 @@ app.post('/api/admin/enable-key', adminAuth, (req, res) => {
 });
 
 // ============================================================
-// ADMIN — LOGS
+// API ADMIN — LOGS
 // ============================================================
 app.get('/api/admin/logs', adminAuth, (req, res) => {
     const { limit = 100, key } = req.query;
@@ -1066,28 +728,20 @@ app.get('/api/admin/logs', adminAuth, (req, res) => {
 });
 
 // ============================================================
-// ADMIN — SESSIONS (cả 2 loại)
+// API ADMIN — SESSIONS
 // ============================================================
 app.get('/api/admin/sessions', adminAuth, (req, res) => {
     const data = initData();
-    const moslotSessions = Object.keys(data.sessions).map(token => ({
+    const sessions = Object.keys(data.sessions).map(token => ({
         token: token.substring(0, 16) + '...',
-        toolType: 'moslot',
         ...data.sessions[token],
         sessionData: undefined
     }));
-    const magicSessions = Object.keys(data.magicSessions).map(token => ({
-        token: token.substring(0, 16) + '...',
-        toolType: 'magic',
-        ...data.magicSessions[token],
-        sessionData: undefined
-    }));
-    const all = [...moslotSessions, ...magicSessions];
-    res.json({ success: true, total: all.length, sessions: all });
+    res.json({ success: true, total: sessions.length, sessions });
 });
 
 // ============================================================
-// ADMIN — USERS
+// API ADMIN — USERS
 // ============================================================
 app.get('/api/admin/users', adminAuth, (req, res) => {
     const data = initData();
@@ -1096,27 +750,22 @@ app.get('/api/admin/users', adminAuth, (req, res) => {
 });
 
 // ============================================================
-// ADMIN — DISCONNECT
+// API ADMIN — DISCONNECT
 // ============================================================
 app.post('/api/admin/disconnect', adminAuth, (req, res) => {
     const { token, key } = req.body;
     const data = initData();
     let disconnected = [];
 
-    // Xoá cả 2 loại session
-    if (token) {
-        if (data.sessions[token]) { delete data.sessions[token]; disconnected.push(token.substring(0, 16) + '...'); }
-        if (data.magicSessions[token]) { delete data.magicSessions[token]; disconnected.push(token.substring(0, 16) + '...'); }
+    if (token && data.sessions[token]) {
+        delete data.sessions[token];
+        disconnected.push(token.substring(0, 16) + '...');
     } else if (key) {
-        Object.keys(data.sessions).forEach(t => {
-            if (data.sessions[t].key === key) { delete data.sessions[t]; disconnected.push(t.substring(0, 16) + '...'); }
-        });
-        Object.keys(data.magicSessions).forEach(t => {
-            if (data.magicSessions[t].key === key) { delete data.magicSessions[t]; disconnected.push(t.substring(0, 16) + '...'); }
-        });
+        const tokens = Object.keys(data.sessions).filter(t => data.sessions[t].key === key);
+        tokens.forEach(t => { delete data.sessions[t]; disconnected.push(t.substring(0, 16) + '...'); });
     } else {
-        Object.keys(data.sessions).forEach(t => { delete data.sessions[t]; disconnected.push(t.substring(0, 16) + '...'); });
-        Object.keys(data.magicSessions).forEach(t => { delete data.magicSessions[t]; disconnected.push(t.substring(0, 16) + '...'); });
+        const tokens = Object.keys(data.sessions);
+        tokens.forEach(t => { delete data.sessions[t]; disconnected.push(t.substring(0, 16) + '...'); });
     }
 
     data.logs.push({ timestamp: new Date().toISOString(), key: key || 'ALL', action: 'DISCONNECT', username: 'ADMIN', platform: 'ADMIN', uniqId: 'ADMIN', status: 'SUCCESS', ip: req.clientIp, message: `Đã ngắt ${disconnected.length} session(s)` });
@@ -1125,7 +774,7 @@ app.post('/api/admin/disconnect', adminAuth, (req, res) => {
 });
 
 // ============================================================
-// ADMIN — TOGGLE TOOL (MOSLOT)
+// API ADMIN — TOGGLE TOOL
 // ============================================================
 app.post('/api/admin/toggle-tool', adminAuth, (req, res) => {
     const { enabled, message } = req.body;
@@ -1133,7 +782,7 @@ app.post('/api/admin/toggle-tool', adminAuth, (req, res) => {
     data.settings.toolEnabled = !!enabled;
     if (message) data.settings.message = message;
     saveData(data);
-    data.logs.push({ timestamp: new Date().toISOString(), key: 'SYSTEM', action: enabled ? 'TOOL_ENABLED' : 'TOOL_DISABLED', username: 'ADMIN', platform: 'ADMIN', uniqId: 'ADMIN', status: 'SUCCESS', ip: req.clientIp, message: enabled ? 'Đã BẬT tool MoSlot' : 'Đã TẮT tool MoSlot' });
+    data.logs.push({ timestamp: new Date().toISOString(), key: 'SYSTEM', action: enabled ? 'TOOL_ENABLED' : 'TOOL_DISABLED', username: 'ADMIN', platform: 'ADMIN', uniqId: 'ADMIN', status: 'SUCCESS', ip: req.clientIp, message: enabled ? 'Đã BẬT tool' : 'Đã TẮT tool' });
     saveData(data);
     res.json({ success: true, enabled: data.settings.toolEnabled, message: data.settings.message });
 });
@@ -1144,36 +793,22 @@ app.get('/api/admin/tool-status', adminAuth, (req, res) => {
 });
 
 // ============================================================
-// ADMIN — TOGGLE MAGIC
+// API ADMIN — REWARDS (MÃ VƯỢT LINK)
 // ============================================================
-app.post('/api/admin/toggle-magic', adminAuth, (req, res) => {
-    const { enabled, message } = req.body;
-    const data = initData();
-    data.settings.magicEnabled = !!enabled;
-    if (message) data.settings.magicMessage = message;
-    saveData(data);
-    data.logs.push({ timestamp: new Date().toISOString(), key: 'SYSTEM', action: enabled ? 'MAGIC_ENABLED' : 'MAGIC_DISABLED', username: 'ADMIN', platform: 'ADMIN', uniqId: 'ADMIN', status: 'SUCCESS', ip: req.clientIp, message: enabled ? 'Đã BẬT tool Magic' : 'Đã TẮT tool Magic' });
-    saveData(data);
-    res.json({ success: true, enabled: data.settings.magicEnabled, message: data.settings.magicMessage });
-});
 
-app.get('/api/admin/magic-status', adminAuth, (req, res) => {
-    const data = initData();
-    res.json({ success: true, enabled: data.settings.magicEnabled !== false, message: data.settings.magicMessage || '' });
-});
-
-// ============================================================
-// ADMIN — REWARDS
-// ============================================================
+// Tạo mã reward
 app.post('/api/admin/create-reward', adminAuth, (req, res) => {
-    const { code, link, keyMaxUses, provider, note, toolType } = req.body;
+    const { code, link, keyMaxUses, provider, note } = req.body;
     const data = initData();
 
-    if (!code || code.length < 3) return res.json({ success: false, message: 'Mã phải từ 3 ký tự!' });
-    if (!link) return res.json({ success: false, message: 'Thiếu link!' });
+    if (!code || code.length < 3) {
+        return res.json({ success: false, message: 'Mã phải từ 3 ký tự!' });
+    }
+    if (!link) {
+        return res.json({ success: false, message: 'Thiếu link!' });
+    }
 
     const codeUpper = code.trim().toUpperCase();
-    const finalToolType = toolType === 'magic' ? 'magic' : 'moslot';
 
     if (data.rewards[codeUpper]) {
         return res.json({ success: false, message: `Mã "${codeUpper}" đã tồn tại!` });
@@ -1184,7 +819,6 @@ app.post('/api/admin/create-reward', adminAuth, (req, res) => {
         link: link.trim(),
         provider: provider || 'link4sub',
         keyMaxUses: parseInt(keyMaxUses) || 10,
-        toolType: finalToolType,
         note: note || '',
         used: false,
         usedBy: null,
@@ -1202,37 +836,39 @@ app.post('/api/admin/create-reward', adminAuth, (req, res) => {
         uniqId: 'ADMIN',
         status: 'SUCCESS',
         ip: req.clientIp,
-        message: `Đã tạo mã reward ${finalToolType.toUpperCase()}: ${codeUpper} → ${link} (${keyMaxUses} lượt)`
+        message: `Đã tạo mã reward: ${codeUpper} → ${link} (${keyMaxUses} lượt)`
     });
 
     saveData(data);
     res.json({
         success: true,
-        message: `Đã tạo mã ${codeUpper} cho tool ${finalToolType.toUpperCase()}!`,
+        message: `Đã tạo mã ${codeUpper}!`,
         reward: data.rewards[codeUpper]
     });
 });
 
+// Danh sách mã reward
 app.get('/api/admin/list-rewards', adminAuth, (req, res) => {
-    const { toolType } = req.query;
     const data = initData();
-    let rewards = Object.values(data.rewards).map(r => ({
+    const rewards = Object.values(data.rewards).map(r => ({
         ...r,
-        toolType: r.toolType || 'moslot',
         usedAtText: r.usedAt ? new Date(r.usedAt).toLocaleString('vi-VN') : null
     })).sort((a, b) => b.createdAt - a.createdAt);
-
-    if (toolType === 'moslot' || toolType === 'magic') {
-        rewards = rewards.filter(r => r.toolType === toolType);
-    }
 
     const total = rewards.length;
     const used = rewards.filter(r => r.used).length;
     const available = total - used;
 
-    res.json({ success: true, total, used, available, rewards });
+    res.json({
+        success: true,
+        total,
+        used,
+        available,
+        rewards
+    });
 });
 
+// Xoá mã reward
 app.post('/api/admin/delete-reward', adminAuth, (req, res) => {
     const { code } = req.body;
     const data = initData();
@@ -1245,9 +881,14 @@ app.post('/api/admin/delete-reward', adminAuth, (req, res) => {
     delete data.rewards[codeUpper];
 
     data.logs.push({
-        timestamp: new Date().toISOString(), key: codeUpper,
-        action: 'REWARD_DELETED', username: 'ADMIN', platform: 'ADMIN',
-        uniqId: 'ADMIN', status: 'SUCCESS', ip: req.clientIp,
+        timestamp: new Date().toISOString(),
+        key: codeUpper,
+        action: 'REWARD_DELETED',
+        username: 'ADMIN',
+        platform: 'ADMIN',
+        uniqId: 'ADMIN',
+        status: 'SUCCESS',
+        ip: req.clientIp,
         message: `Đã xoá mã reward: ${codeUpper}`
     });
 
@@ -1255,6 +896,7 @@ app.post('/api/admin/delete-reward', adminAuth, (req, res) => {
     res.json({ success: true, message: `Đã xoá mã ${codeUpper}!` });
 });
 
+// Reset mã reward (cho phép dùng lại)
 app.post('/api/admin/reset-reward', adminAuth, (req, res) => {
     const { code } = req.body;
     const data = initData();
@@ -1273,12 +915,14 @@ app.post('/api/admin/reset-reward', adminAuth, (req, res) => {
     res.json({ success: true, message: `Đã reset mã ${codeUpper}!` });
 });
 
+// Log getkey
 app.get('/api/admin/getkey-logs', adminAuth, (req, res) => {
     const data = initData();
     const logs = (data.getkeyLogs || []).slice().reverse().slice(0, 200);
     res.json({ success: true, total: logs.length, logs });
 });
 
+// Thống kê getkey
 app.get('/api/admin/getkey-stats', adminAuth, (req, res) => {
     const data = initData();
     const today = new Date().toISOString().split('T')[0];

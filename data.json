@@ -12,7 +12,8 @@
       "source": "getkey",
       "sourceCode": "MYCUTEEE",
       "sourceIp": "127.0.0.1",
-      "givenAt": 1791099896997
+      "givenAt": 1791099896997,
+      "toolType": "moslot"
     },
     "KEY_1791029298095_FFB6F2BA": {
       "type": "vip",
@@ -24,7 +25,8 @@
       "createdAt": "2026-10-03T12:08:18.095Z",
       "note": "Test key",
       "hwid": "def456uvw",
-      "firstUsedAt": "2026-10-04T05:28:59.817Z"
+      "firstUsedAt": "2026-10-04T05:28:59.817Z",
+      "toolType": "moslot"
     },
     "KEY_1791029559154_78B72148": {
       "type": "vip",
@@ -34,7 +36,8 @@
       "active": true,
       "createdBy": "ADMIN",
       "createdAt": "2026-10-03T12:12:39.156Z",
-      "note": "Key test tool"
+      "note": "Key test tool",
+      "toolType": "moslot"
     },
     "KEY_1791030314381_7F7D593B": {
       "type": "vip",
@@ -44,7 +47,8 @@
       "active": true,
       "createdBy": "ADMIN",
       "createdAt": "2026-10-03T12:25:14.383Z",
-      "note": "nhớ my lắm"
+      "note": "nhớ my lắm",
+      "toolType": "moslot"
     },
     "KEY_1791030314399_2DD256BB": {
       "type": "vip",
@@ -54,7 +58,8 @@
       "active": true,
       "createdBy": "ADMIN",
       "createdAt": "2026-10-03T12:25:14.399Z",
-      "note": "nhớ my lắm"
+      "note": "nhớ my lắm",
+      "toolType": "moslot"
     },
     "KEY_1791030314427_F78751C8": {
       "type": "vip",
@@ -64,7 +69,8 @@
       "active": true,
       "createdBy": "ADMIN",
       "createdAt": "2026-10-03T12:25:14.427Z",
-      "note": "Aja"
+      "note": "Aja",
+      "toolType": "moslot"
     },
     "KEY_1791030446050_94312C44": {
       "type": "vip",
@@ -74,7 +80,8 @@
       "active": true,
       "createdBy": "ADMIN",
       "createdAt": "2026-10-03T12:27:26.071Z",
-      "note": "Key mới"
+      "note": "Key mới",
+      "toolType": "moslot"
     },
     "KEY_1791086315057_51171467": {
       "type": "vip",
@@ -84,7 +91,8 @@
       "active": true,
       "createdBy": "ADMIN",
       "createdAt": "2026-10-04T03:58:35.059Z",
-      "note": "Test v5"
+      "note": "Test v5",
+      "toolType": "moslot"
     },
     "KEY_1791087972301_761BAC8D": {
       "type": "vip",
@@ -94,7 +102,8 @@
       "active": true,
       "createdBy": "ADMIN",
       "createdAt": "2026-10-04T04:26:12.302Z",
-      "note": "Key mới"
+      "note": "Key mới",
+      "toolType": "moslot"
     },
     "KEY_1791091600128_0ADA6A75": {
       "type": "vip",
@@ -104,7 +113,8 @@
       "active": true,
       "createdBy": "ADMIN",
       "createdAt": "2026-10-04T05:26:40.129Z",
-      "note": "Test HWID"
+      "note": "Test HWID",
+      "toolType": "moslot"
     },
     "KEY_1791092521790_1F98C841": {
       "type": "vip",
@@ -115,7 +125,8 @@
       "hwid": null,
       "createdBy": "ADMIN",
       "createdAt": "2026-10-04T05:42:01.793Z",
-      "note": "VIP"
+      "note": "VIP",
+      "toolType": "moslot"
     },
     "KEY_1791092568520_85265FC0": {
       "type": "vip",
@@ -126,7 +137,45 @@
       "hwid": null,
       "createdBy": "ADMIN",
       "createdAt": "2026-10-04T05:42:48.521Z",
-      "note": "Test v5.2"
+      "note": "Test v5.2",
+      "toolType": "moslot"
+    },
+    "KEY_1791208710105_57EC1A35": {
+      "type": "vip",
+      "expiry": "2028-12-31",
+      "maxUses": 5,
+      "used": 0,
+      "active": true,
+      "hwid": null,
+      "toolType": "magic",
+      "createdBy": "ADMIN",
+      "createdAt": "2026-10-05T13:58:30.108Z",
+      "note": "Test"
+    },
+    "KEY_1791263611117_7DA8EA3B": {
+      "type": "vip",
+      "expiry": "2028-12-31",
+      "maxUses": 5,
+      "used": 1,
+      "active": true,
+      "hwid": "3ed493393cca38ec",
+      "toolType": "magic",
+      "createdBy": "ADMIN",
+      "createdAt": "2026-10-06T05:13:31.120Z",
+      "note": "Test Magic",
+      "firstUsedAt": "2026-10-06T05:27:32.760Z"
+    },
+    "KEY_1791264170051_9A053F87": {
+      "type": "vip",
+      "expiry": "2028-12-31",
+      "maxUses": 5,
+      "used": 0,
+      "active": true,
+      "hwid": null,
+      "toolType": "magic",
+      "createdBy": "ADMIN",
+      "createdAt": "2026-10-06T05:22:50.052Z",
+      "note": "Test Magic 2"
     }
   },
   "logs": [
@@ -635,6 +684,181 @@
       "status": "SUCCESS",
       "ip": "127.0.0.1",
       "message": "Cấp key qua vượt link. Mã: MYCUTEEE"
+    },
+    {
+      "timestamp": "2026-10-05T13:52:20.957Z",
+      "key": "SYSTEM",
+      "action": "MAGIC_ENABLED",
+      "username": "ADMIN",
+      "platform": "ADMIN",
+      "uniqId": "ADMIN",
+      "status": "SUCCESS",
+      "ip": "127.0.0.1",
+      "message": "Đã BẬT tool Magic"
+    },
+    {
+      "timestamp": "2026-10-05T13:56:19.236Z",
+      "key": "TEST",
+      "action": "MAGIC_START_FAILED",
+      "username": "unknown",
+      "platform": "AMO",
+      "uniqId": "test",
+      "status": "KEY_NOT_FOUND",
+      "ip": "127.0.0.1",
+      "message": "Key không tồn tại"
+    },
+    {
+      "timestamp": "2026-10-05T13:57:19.468Z",
+      "key": "TEST",
+      "action": "MAGIC_START_FAILED",
+      "username": "unknown",
+      "platform": "AMO",
+      "uniqId": "test",
+      "status": "KEY_NOT_FOUND",
+      "ip": "127.0.0.1",
+      "message": "Key không tồn tại"
+    },
+    {
+      "timestamp": "2026-10-05T13:58:20.174Z",
+      "key": "SYSTEM",
+      "action": "MAGIC_ENABLED",
+      "username": "ADMIN",
+      "platform": "ADMIN",
+      "uniqId": "ADMIN",
+      "status": "SUCCESS",
+      "ip": "127.0.0.1",
+      "message": "Đã BẬT tool Magic"
+    },
+    {
+      "timestamp": "2026-10-05T13:58:30.109Z",
+      "key": "KEY_1791208710105_57EC1A35",
+      "action": "KEY_CREATED",
+      "username": "ADMIN",
+      "platform": "ADMIN",
+      "uniqId": "ADMIN",
+      "status": "SUCCESS",
+      "ip": "127.0.0.1",
+      "message": "Đã tạo key MAGIC: KEY_1791208710105_57EC1A35"
+    },
+    {
+      "timestamp": "2026-10-05T13:59:39.822Z",
+      "key": "TEST",
+      "action": "MAGIC_START_FAILED",
+      "username": "unknown",
+      "platform": "AMO",
+      "uniqId": "test",
+      "status": "KEY_NOT_FOUND",
+      "ip": "127.0.0.1",
+      "message": "Key không tồn tại"
+    },
+    {
+      "timestamp": "2026-10-06T05:13:31.120Z",
+      "key": "KEY_1791263611117_7DA8EA3B",
+      "action": "KEY_CREATED",
+      "username": "ADMIN",
+      "platform": "ADMIN",
+      "uniqId": "ADMIN",
+      "status": "SUCCESS",
+      "ip": "127.0.0.1",
+      "message": "Đã tạo key MAGIC: KEY_1791263611117_7DA8EA3B"
+    },
+    {
+      "timestamp": "2026-10-06T05:14:42.910Z",
+      "key": "KEY_1791263611117_7DA8EA3B",
+      "action": "MAGIC_START_SUCCESS",
+      "username": "my cuteeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "platform": "AMO",
+      "uniqId": "TDM566586mYd",
+      "hostId": "truongnhat1608vip@gmail.com",
+      "status": "SUCCESS",
+      "ip": "127.0.0.1",
+      "sessionToken": "7cbfe4ce997af46a9fef9009d68cf5064b4da7bb462c920fb38162398501da25",
+      "message": "Bắt đầu session Magic. Còn 5 lượt"
+    },
+    {
+      "timestamp": "2026-10-06T05:18:11.920Z",
+      "key": "KEY_1791263611117_7DA8EA3B",
+      "action": "MAGIC_START_FAILED",
+      "status": "WRONG_HWID",
+      "ip": "127.0.0.1",
+      "username": "unknown",
+      "platform": "AMO",
+      "uniqId": "TDM566586mYd",
+      "hostId": "truongnhat1608vip@gmail.com",
+      "message": "HWID không khớp."
+    },
+    {
+      "timestamp": "2026-10-06T05:21:45.768Z",
+      "key": "KEY_1791263611117_7DA8EA3B",
+      "action": "MAGIC_START_FAILED",
+      "status": "WRONG_HWID",
+      "ip": "127.0.0.1",
+      "username": "unknown",
+      "platform": "AMO",
+      "uniqId": "TDM566586mYd",
+      "hostId": "truongnhat1608vip@gmail.com",
+      "message": "HWID không khớp."
+    },
+    {
+      "timestamp": "2026-10-06T05:22:40.076Z",
+      "key": "KEY_1791263611117_7DA8EA3B",
+      "action": "RESET_HWID",
+      "username": "ADMIN",
+      "platform": "ADMIN",
+      "uniqId": "ADMIN",
+      "status": "SUCCESS",
+      "ip": "127.0.0.1",
+      "message": "Đã reset HWID (cũ: test_hwid)"
+    },
+    {
+      "timestamp": "2026-10-06T05:22:50.053Z",
+      "key": "KEY_1791264170051_9A053F87",
+      "action": "KEY_CREATED",
+      "username": "ADMIN",
+      "platform": "ADMIN",
+      "uniqId": "ADMIN",
+      "status": "SUCCESS",
+      "ip": "127.0.0.1",
+      "message": "Đã tạo key MAGIC: KEY_1791264170051_9A053F87"
+    },
+    {
+      "timestamp": "2026-10-06T05:27:32.760Z",
+      "key": "KEY_1791263611117_7DA8EA3B",
+      "action": "MAGIC_START_SUCCESS",
+      "username": "my cuteeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "platform": "AMO",
+      "uniqId": "TDM566586mYd",
+      "hostId": "truongnhat1608vip@gmail.com",
+      "status": "SUCCESS",
+      "ip": "127.0.0.1",
+      "sessionToken": "720e5d5d69cc32e1447e93c74bc4dec5cdcc47a0c12970c891c62bd912fffe0c",
+      "message": "Bắt đầu session Magic. Còn 5 lượt"
+    },
+    {
+      "timestamp": "2026-10-06T05:27:50.357Z",
+      "key": "KEY_1791263611117_7DA8EA3B",
+      "action": "MAGIC_HACK",
+      "username": "my cuteeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "platform": "AMO",
+      "uniqId": "TDM566586mYd",
+      "hostId": "truongnhat1608vip@gmail.com",
+      "status": "SUCCESS",
+      "ip": "127.0.0.1",
+      "sessionToken": "720e5d5d69cc32e1447e93c74bc4dec5cdcc47a0c12970c891c62bd912fffe0c",
+      "message": "Hack 1 lần: 1 OK, 0 fail, +30 đá"
+    },
+    {
+      "timestamp": "2026-10-06T05:34:54.405Z",
+      "key": "KEY_1791263611117_7DA8EA3B",
+      "action": "MAGIC_START_SUCCESS",
+      "username": "my cuteeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "platform": "AMO",
+      "uniqId": "TDM566586mYd",
+      "hostId": "truongnhat1608vip@gmail.com",
+      "status": "SUCCESS",
+      "ip": "127.0.0.1",
+      "sessionToken": "d63547f7b518ef58a90f54be6d0d9b93b8bfde1069116aa3bd30048de8a3dbe4",
+      "message": "Bắt đầu session Magic. Còn 4 lượt"
     }
   ],
   "sessions": {
@@ -747,17 +971,19 @@
     "TDM566586mYd": {
       "uniqId": "TDM566586mYd",
       "hostId": "truongnhat1608vip@gmail.com",
-      "username": "sao lai rung dong voi my nua roi",
+      "username": "my cuteeeeeeeeeeeeeeeeeeeeeeeeeeee",
       "platform": "AMO",
-      "keyUsed": "KEY_1791029298095_FFB6F2BA",
+      "keyUsed": "KEY_1791263611117_7DA8EA3B",
       "firstSeen": "2026-10-03T12:14:20.358Z",
-      "lastSeen": "2026-10-04T05:31:23.013Z",
-      "totalUses": 5
+      "lastSeen": "2026-10-06T05:34:54.405Z",
+      "totalUses": 8
     }
   },
   "settings": {
     "toolEnabled": true,
-    "message": "Tool đang bảo trì hệ thống, sẽ mở lại sau"
+    "message": "Tool đang bảo trì hệ thống, sẽ mở lại sau",
+    "magicEnabled": true,
+    "magicMessage": "Tool Magic đang bảo trì, sẽ mở lại sau"
   },
   "rewards": {
     "A1B2C3": {
@@ -770,7 +996,8 @@
       "usedBy": null,
       "usedAt": null,
       "keyGiven": null,
-      "createdAt": 1791099333096
+      "createdAt": 1791099333096,
+      "toolType": "moslot"
     },
     "MYCUTEEE": {
       "code": "MYCUTEEE",
@@ -782,7 +1009,8 @@
       "usedBy": "127.0.0.1",
       "usedAt": 1791099896997,
       "keyGiven": "KEY_1791029210112_A61A92A0",
-      "createdAt": 1791099728263
+      "createdAt": 1791099728263,
+      "toolType": "moslot"
     }
   },
   "getkeyLogs": [
@@ -796,6 +1024,38 @@
   "dailyGetkey": {
     "2026-10-04": {
       "127.0.0.1": 1
+    }
+  },
+  "magicSessions": {
+    "7cbfe4ce997af46a9fef9009d68cf5064b4da7bb462c920fb38162398501da25": {
+      "key": "KEY_1791263611117_7DA8EA3B",
+      "deviceId": "test_hwid",
+      "username": "my cuteeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "platform": "AMO",
+      "uniqId": "TDM566586mYd",
+      "hostId": "truongnhat1608vip@gmail.com",
+      "connectedAt": "2026-10-06T05:14:42.910Z",
+      "lastActive": "2026-10-06T05:14:42.910Z",
+      "ip": "127.0.0.1",
+      "sessionData": {
+        "gichapo": "34CW8HRJ",
+        "magic": 0
+      }
+    },
+    "d63547f7b518ef58a90f54be6d0d9b93b8bfde1069116aa3bd30048de8a3dbe4": {
+      "key": "KEY_1791263611117_7DA8EA3B",
+      "deviceId": "3ed493393cca38ec",
+      "username": "my cuteeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "platform": "AMO",
+      "uniqId": "TDM566586mYd",
+      "hostId": "truongnhat1608vip@gmail.com",
+      "connectedAt": "2026-10-06T05:34:54.405Z",
+      "lastActive": "2026-10-06T05:34:54.405Z",
+      "ip": "127.0.0.1",
+      "sessionData": {
+        "gichapo": "0L3LAFIO",
+        "magic": 0
+      }
     }
   }
 }

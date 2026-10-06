@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>MoSlot Manager - Admin</title>
+<title>MoSlot + Magic Manager - Admin</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
@@ -12,7 +13,7 @@ body {
     padding: 12px; font-size: 14px; line-height: 1.5;
     min-height: 100vh;
 }
-.container { max-width: 1100px; margin: 0 auto; }
+.container { max-width: 1200px; margin: 0 auto; }
 h1 { color: #38bdf8; font-size: 22px; margin-bottom: 6px; }
 h2 { color: #94a3b8; font-size: 15px; margin: 18px 0 10px;
      border-bottom: 1px solid #334155; padding-bottom: 6px; }
@@ -41,6 +42,8 @@ button.warn { background: #f59e0b; color: #1e293b; }
 button.warn:hover { background: #d97706; }
 button.ok { background: #10b981; }
 button.ok:hover { background: #059669; }
+button.magic { background: #a855f7; }
+button.magic:hover { background: #9333ea; }
 button.small {
     padding: 5px 9px; font-size: 12px;
     width: auto; margin: 2px;
@@ -54,6 +57,7 @@ button.small {
     border-radius: 8px; padding: 12px; text-align: center;
 }
 .stat .num { color: #38bdf8; font-size: 24px; font-weight: bold; }
+.stat .num.magic { color: #a855f7; }
 .stat .label { color: #94a3b8; font-size: 11px; margin-top: 4px; }
 
 table { width: 100%; border-collapse: collapse; font-size: 12px; }
@@ -65,6 +69,7 @@ tr:hover td { background: #0f172a; }
 .on { background: #065f46; color: #6ee7b7; }
 .off { background: #7f1d1d; color: #fca5a5; }
 .warn-badge { background: #78350f; color: #fcd34d; }
+.magic-badge { background: #581c87; color: #d8b4fe; }
 
 .key { font-family: 'Courier New', monospace; color: #fbbf24; font-size: 11px; word-break: break-all; }
 .hidden { display: none !important; }
@@ -85,6 +90,7 @@ tr:hover td { background: #0f172a; }
 }
 .tab:hover { color: #e2e8f0; }
 .tab.active { background: #0ea5e9; color: white; border-color: #0ea5e9; }
+.tab.magic-tab.active { background: #a855f7; border-color: #a855f7; }
 .tab-content { display: none; }
 .tab-content.active { display: block; }
 
@@ -95,6 +101,7 @@ tr:hover td { background: #0f172a; }
 }
 .log-item.success { border-color: #10b981; }
 .log-item.fail { border-color: #ef4444; }
+.log-item.magic { border-color: #a855f7; }
 .log-item .time { color: #64748b; font-size: 11px; }
 .empty { text-align: center; padding: 30px; color: #64748b; font-size: 13px; }
 
@@ -117,8 +124,8 @@ tr:hover td { background: #0f172a; }
 
 <div id="loginBox">
     <div class="card">
-        <h1>🔐 MoSlot Manager</h1>
-        <p class="subtitle">Đăng nhập để quản lý tool</p>
+        <h1>🔐 Manager Panel</h1>
+        <p class="subtitle">MoSlot + Magic Tools</p>
         <input type="password" id="adminKey" placeholder="Nhập Admin Key" autofocus>
         <button onclick="login()" style="margin-top:8px">Đăng nhập</button>
         <div id="loginMsg" class="msg"></div>
@@ -128,43 +135,60 @@ tr:hover td { background: #0f172a; }
 <div id="panel" class="container hidden">
     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px">
         <div>
-            <h1>🎛️ MoSlot Manager <span style="color:#64748b; font-size:14px">v6.0</span></h1>
-            <p class="subtitle">Quản lý tool + Hệ thống vượt link</p>
+            <h1>🎛️ Manager <span style="color:#64748b; font-size:14px">v7.0</span></h1>
+            <p class="subtitle">Quản lý MoSlot + Magic</p>
         </div>
         <button class="small danger" onclick="logout()">🚪 Đăng xuất</button>
     </div>
 
     <div class="tabs">
         <div class="tab active" onclick="switchTab('dashboard', this)">📊 Dashboard</div>
-        <div class="tab" onclick="switchTab('keys', this)">🔑 Keys</div>
-        <div class="tab" onclick="switchTab('rewards', this)">🎁 Rewards</div>
+        <div class="tab" onclick="switchTab('keys-moslot', this)">🔑 Keys MoSlot</div>
+        <div class="tab magic-tab" onclick="switchTab('keys-magic', this)">🔑 Keys Magic</div>
+        <div class="tab" onclick="switchTab('rewards-moslot', this)">🎁 Rewards MoSlot</div>
+        <div class="tab magic-tab" onclick="switchTab('rewards-magic', this)">🎁 Rewards Magic</div>
         <div class="tab" onclick="switchTab('users', this)">👥 Users</div>
         <div class="tab" onclick="switchTab('logs', this)">📜 Logs</div>
     </div>
 
+    <!-- TAB DASHBOARD -->
     <div id="tab-dashboard" class="tab-content active">
         <div class="card">
-            <h2>⛔ Trạng thái tool</h2>
-            <div id="toolStatusBox" style="text-align:center; padding:14px 0; font-size:16px">
-                Đang tải...
-            </div>
+            <h2>⛔ Trạng thái Tool MoSlot</h2>
+            <div id="toolStatusBox" style="text-align:center; padding:14px 0; font-size:16px">Đang tải...</div>
             <div style="margin-top:10px">
-                <label style="color:#94a3b8; font-size:12px">Thông báo khi tắt tool:</label>
-                <textarea id="toolMessage" rows="2" placeholder="Nhập thông báo..."></textarea>
+                <label style="color:#94a3b8; font-size:12px">Thông báo khi tắt:</label>
+                <textarea id="toolMessage" rows="2"></textarea>
             </div>
             <div class="row" style="margin-top:8px">
-                <button class="ok" onclick="toggleTool(true)">🟢 BẬT TOOL</button>
-                <button class="danger" onclick="toggleTool(false)">🔴 TẮT TOOL</button>
-                <button class="warn" onclick="saveMessage()">💾 Lưu thông báo</button>
+                <button class="ok" onclick="toggleTool(true)">🟢 BẬT</button>
+                <button class="danger" onclick="toggleTool(false)">🔴 TẮT</button>
+                <button class="warn" onclick="saveMessage()">💾 Lưu</button>
             </div>
             <div id="toolMsg" class="msg"></div>
         </div>
 
         <div class="card">
+            <h2>⛔ Trạng thái Tool Magic</h2>
+            <div id="magicStatusBox" style="text-align:center; padding:14px 0; font-size:16px">Đang tải...</div>
+            <div style="margin-top:10px">
+                <label style="color:#94a3b8; font-size:12px">Thông báo khi tắt:</label>
+                <textarea id="magicMessage" rows="2"></textarea>
+            </div>
+            <div class="row" style="margin-top:8px">
+                <button class="ok" onclick="toggleMagic(true)">🟢 BẬT</button>
+                <button class="danger" onclick="toggleMagic(false)">🔴 TẮT</button>
+                <button class="warn" onclick="saveMagicMessage()">💾 Lưu</button>
+            </div>
+            <div id="magicMsg" class="msg"></div>
+        </div>
+
+        <div class="card">
             <h2>📊 Thống kê</h2>
-            <div class="stats" id="statsBox">
+            <div class="stats">
                 <div class="stat"><div class="num" id="statKeys">-</div><div class="label">Tổng Key</div></div>
-                <div class="stat"><div class="num" id="statActiveKeys">-</div><div class="label">Key Active</div></div>
+                <div class="stat"><div class="num" id="statMoslotKeys">-</div><div class="label">Key MoSlot</div></div>
+                <div class="stat"><div class="num magic" id="statMagicKeys">-</div><div class="label">Key Magic</div></div>
                 <div class="stat"><div class="num" id="statUsers">-</div><div class="label">Users</div></div>
                 <div class="stat"><div class="num" id="statSessions">-</div><div class="label">Sessions</div></div>
                 <div class="stat"><div class="num" id="statLogs">-</div><div class="label">Logs</div></div>
@@ -173,133 +197,177 @@ tr:hover td { background: #0f172a; }
         </div>
     </div>
 
-    <div id="tab-keys" class="tab-content">
+    <!-- TAB KEYS MOSLOT -->
+    <div id="tab-keys-moslot" class="tab-content">
         <div class="card">
-            <h2>➕ Tạo key mới</h2>
+            <h2>➕ Tạo key MoSlot</h2>
             <div class="row">
-                <input type="number" id="keyMaxUses" placeholder="Số lượt (mặc định 999)" value="999">
-                <input type="date" id="keyExpiry" placeholder="Hết hạn">
-                <input type="text" id="keyNote" placeholder="Ghi chú (bán cho ai...)">
+                <input type="number" id="keyMaxUsesM" placeholder="Số lượt (slot)" value="10">
+                <input type="date" id="keyExpiryM">
+                <input type="text" id="keyNoteM" placeholder="Ghi chú">
             </div>
-            <button class="ok" onclick="createKey()">➕ Tạo key</button>
-            <div id="createKeyMsg" class="msg"></div>
+            <button class="ok" onclick="createKey('moslot')">➕ Tạo key MoSlot</button>
+            <div id="createKeyMsgM" class="msg"></div>
         </div>
-
         <div class="card">
-            <h2>📋 Danh sách Key</h2>
-            <button class="small" onclick="loadKeys()">🔄 Tải lại</button>
+            <h2>📋 Danh sách Key MoSlot</h2>
+            <button class="small" onclick="loadKeys('moslot')">🔄 Tải lại</button>
             <div style="overflow-x:auto; margin-top:10px">
-                <table id="keysTable">
-                    <thead>
-                        <tr>
-                            <th>Key</th>
-                            <th>Lượt</th>
-                            <th>Hết hạn</th>
-                            <th>Note</th>
-                            <th>Thiết bị</th>
-                            <th>Trạng thái</th>
-                            <th>Hành động</th>
-                        </tr>
-                    </thead>
+                <table id="keysTableM">
+                    <thead><tr>
+                        <th>Key</th><th>Lượt</th><th>Hết hạn</th><th>Note</th><th>Thiết bị</th><th>Trạng thái</th><th>Hành động</th>
+                    </tr></thead>
                     <tbody></tbody>
                 </table>
             </div>
         </div>
     </div>
 
-    <!-- TAB REWARDS -->
-    <div id="tab-rewards" class="tab-content">
+    <!-- TAB KEYS MAGIC -->
+    <div id="tab-keys-magic" class="tab-content">
         <div class="card">
-            <h2>➕ Tạo mã vượt link mới</h2>
+            <h2>➕ Tạo key Magic</h2>
             <div class="row">
-                <input type="text" id="rewardCode" placeholder="Mã xác nhận (VD: A1B2C3)" style="text-transform: uppercase">
-                <input type="text" id="rewardLink" placeholder="Link rút gọn (VD: link4sub.com/abc)">
+                <input type="number" id="keyMaxUsesG" placeholder="Số lượt (lần hack)" value="10">
+                <input type="date" id="keyExpiryG">
+                <input type="text" id="keyNoteG" placeholder="Ghi chú">
+            </div>
+            <button class="magic" onclick="createKey('magic')">➕ Tạo key Magic</button>
+            <div id="createKeyMsgG" class="msg"></div>
+        </div>
+        <div class="card">
+            <h2>📋 Danh sách Key Magic</h2>
+            <button class="small" onclick="loadKeys('magic')">🔄 Tải lại</button>
+            <div style="overflow-x:auto; margin-top:10px">
+                <table id="keysTableG">
+                    <thead><tr>
+                        <th>Key</th><th>Lượt</th><th>Hết hạn</th><th>Note</th><th>Thiết bị</th><th>Trạng thái</th><th>Hành động</th>
+                    </tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB REWARDS MOSLOT -->
+    <div id="tab-rewards-moslot" class="tab-content">
+        <div class="card">
+            <h2>➕ Tạo mã vượt link MoSlot</h2>
+            <div class="row">
+                <input type="text" id="rewardCodeM" placeholder="Mã (VD: A1B2C3)" style="text-transform: uppercase">
+                <input type="text" id="rewardLinkM" placeholder="Link rút gọn">
             </div>
             <div class="row">
-                <input type="number" id="rewardMaxUses" placeholder="Số lượt key (VD: 10)" value="10">
-                <select id="rewardProvider">
+                <input type="number" id="rewardMaxUsesM" placeholder="Số lượt key" value="10">
+                <select id="rewardProviderM">
                     <option value="link4sub">Link4sub</option>
                     <option value="vuotnhanh">Vuotnhanh</option>
                     <option value="khac">Khác</option>
                 </select>
-                <input type="text" id="rewardNote" placeholder="Ghi chú">
+                <input type="text" id="rewardNoteM" placeholder="Ghi chú">
             </div>
-            <button class="ok" onclick="createReward()">➕ Tạo mã</button>
-            <div id="createRewardMsg" class="msg"></div>
+            <button class="ok" onclick="createReward('moslot')">➕ Tạo mã MoSlot</button>
+            <div id="createRewardMsgM" class="msg"></div>
         </div>
-
         <div class="card">
-            <h2>📊 Thống kê Rewards</h2>
-            <div class="stats" id="rewardStats">
-                <div class="stat"><div class="num" id="statRewardTotal">-</div><div class="label">Tổng mã</div></div>
-                <div class="stat"><div class="num" id="statRewardUsed">-</div><div class="label">Đã dùng</div></div>
-                <div class="stat"><div class="num" id="statRewardAvailable">-</div><div class="label">Còn lại</div></div>
-                <div class="stat"><div class="num" id="statGetkeyToday">-</div><div class="label">Hôm nay</div></div>
+            <h2>📊 Thống kê Rewards MoSlot</h2>
+            <div class="stats">
+                <div class="stat"><div class="num" id="statRewardTotalM">-</div><div class="label">Tổng mã</div></div>
+                <div class="stat"><div class="num" id="statRewardUsedM">-</div><div class="label">Đã dùng</div></div>
+                <div class="stat"><div class="num" id="statRewardAvailableM">-</div><div class="label">Còn lại</div></div>
             </div>
-            <button style="margin-top:10px" onclick="loadRewards()">🔄 Tải lại</button>
         </div>
-
         <div class="card">
-            <h2>📋 Danh sách mã vượt link</h2>
+            <h2>📋 Danh sách mã MoSlot</h2>
             <div style="overflow-x:auto; margin-top:10px">
-                <table id="rewardsTable">
-                    <thead>
-                        <tr>
-                            <th>Mã</th>
-                            <th>Link</th>
-                            <th>NCC</th>
-                            <th>Lượt key</th>
-                            <th>Trạng thái</th>
-                            <th>Key đã cấp</th>
-                            <th>Người dùng</th>
-                            <th>Hành động</th>
-                        </tr>
-                    </thead>
+                <table id="rewardsTableM">
+                    <thead><tr>
+                        <th>Mã</th><th>Link</th><th>NCC</th><th>Lượt</th><th>Trạng thái</th><th>Key đã cấp</th><th>IP</th><th>Hành động</th>
+                    </tr></thead>
                     <tbody></tbody>
                 </table>
             </div>
         </div>
+    </div>
 
+    <!-- TAB REWARDS MAGIC -->
+    <div id="tab-rewards-magic" class="tab-content">
         <div class="card">
-            <h2>📜 Lịch sử lấy key</h2>
-            <button class="small" onclick="loadGetkeyLogs()">🔄 Tải lại</button>
-            <div id="getkeyLogsBox" style="margin-top:10px; max-height:400px; overflow-y:auto"></div>
+            <h2>➕ Tạo mã vượt link Magic</h2>
+            <div class="row">
+                <input type="text" id="rewardCodeG" placeholder="Mã (VD: MAGIC01)" style="text-transform: uppercase">
+                <input type="text" id="rewardLinkG" placeholder="Link rút gọn">
+            </div>
+            <div class="row">
+                <input type="number" id="rewardMaxUsesG" placeholder="Số lượt key" value="10">
+                <select id="rewardProviderG">
+                    <option value="link4sub">Link4sub</option>
+                    <option value="vuotnhanh">Vuotnhanh</option>
+                    <option value="khac">Khác</option>
+                </select>
+                <input type="text" id="rewardNoteG" placeholder="Ghi chú">
+            </div>
+            <button class="magic" onclick="createReward('magic')">➕ Tạo mã Magic</button>
+            <div id="createRewardMsgG" class="msg"></div>
+        </div>
+        <div class="card">
+            <h2>📊 Thống kê Rewards Magic</h2>
+            <div class="stats">
+                <div class="stat"><div class="num magic" id="statRewardTotalG">-</div><div class="label">Tổng mã</div></div>
+                <div class="stat"><div class="num magic" id="statRewardUsedG">-</div><div class="label">Đã dùng</div></div>
+                <div class="stat"><div class="num magic" id="statRewardAvailableG">-</div><div class="label">Còn lại</div></div>
+            </div>
+        </div>
+        <div class="card">
+            <h2>📋 Danh sách mã Magic</h2>
+            <div style="overflow-x:auto; margin-top:10px">
+                <table id="rewardsTableG">
+                    <thead><tr>
+                        <th>Mã</th><th>Link</th><th>NCC</th><th>Lượt</th><th>Trạng thái</th><th>Key đã cấp</th><th>IP</th><th>Hành động</th>
+                    </tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
         </div>
     </div>
 
+    <!-- TAB USERS -->
     <div class="tab-content" id="tab-users">
         <div class="card">
             <h2>👥 Người đã dùng tool</h2>
             <button class="small" onclick="loadUsers()">🔄 Tải lại</button>
             <div style="overflow-x:auto; margin-top:10px">
                 <table id="usersTable">
-                    <thead>
-                        <tr>
-                            <th>UNIQ_ID</th>
-                            <th>Username</th>
-                            <th>Platform</th>
-                            <th>Host/Gmail</th>
-                            <th>Key dùng</th>
-                            <th>Lượt</th>
-                            <th>Lần cuối</th>
-                        </tr>
-                    </thead>
+                    <thead><tr>
+                        <th>UNIQ_ID</th><th>Username</th><th>Platform</th><th>Host/Gmail</th><th>Key dùng</th><th>Lượt</th><th>Lần cuối</th>
+                    </tr></thead>
                     <tbody></tbody>
                 </table>
             </div>
         </div>
     </div>
 
+    <!-- TAB LOGS -->
     <div class="tab-content" id="tab-logs">
         <div class="card">
             <h2>📜 Lịch sử hoạt động</h2>
             <div class="row">
-                <input type="text" id="logFilterKey" placeholder="Lọc theo key (để trống = tất cả)">
+                <input type="text" id="logFilterKey" placeholder="Lọc theo key">
                 <button class="small" onclick="loadLogs()">🔄 Tải lại</button>
             </div>
             <div id="logsBox" style="margin-top:10px; max-height:600px; overflow-y:auto"></div>
         </div>
     </div>
+
+    <!-- TAB REWARD LOGS -->
+    <div class="tab-content" id="tab-reward-logs">
+        <div class="card">
+            <h2>📜 Lịch sử lấy key</h2>
+            <button class="small" onclick="loadGetkeyLogs()">🔄 Tải lại</button>
+            <div id="getkeyLogsBox" style="margin-top:10px; max-height:600px; overflow-y:auto"></div>
+        </div>
+    </div>
+
 </div>
 
 <div id="toast" class="toast"></div>
@@ -375,10 +443,13 @@ window.addEventListener('DOMContentLoaded', () => {
 function init() {
     loadStats();
     loadToolStatus();
-    loadKeys();
+    loadMagicStatus();
+    loadKeys('moslot');
+    loadKeys('magic');
+    loadRewards('moslot');
+    loadRewards('magic');
     loadUsers();
     loadLogs();
-    loadRewards();
     loadGetkeyLogs();
 }
 
@@ -387,7 +458,11 @@ function switchTab(name, el) {
     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
     el.classList.add('active');
     document.getElementById('tab-' + name).classList.add('active');
-    if (name === 'rewards') { loadRewards(); loadGetkeyLogs(); }
+
+    if (name === 'rewards-moslot') loadRewards('moslot');
+    if (name === 'rewards-magic') loadRewards('magic');
+    if (name === 'keys-moslot') loadKeys('moslot');
+    if (name === 'keys-magic') loadKeys('magic');
 }
 
 async function loadStats() {
@@ -395,7 +470,8 @@ async function loadStats() {
     try {
         const d = await res.json();
         document.getElementById('statKeys').textContent = d.totalKeys ?? '-';
-        document.getElementById('statActiveKeys').textContent = d.activeKeys ?? '-';
+        document.getElementById('statMoslotKeys').textContent = d.moslotKeys ?? '-';
+        document.getElementById('statMagicKeys').textContent = d.magicKeys ?? '-';
         document.getElementById('statUsers').textContent = d.totalUsers ?? '-';
         document.getElementById('statSessions').textContent = d.totalSessions ?? '-';
         document.getElementById('statLogs').textContent = d.totalLogs ?? '-';
@@ -407,41 +483,79 @@ async function loadToolStatus() {
     const box = document.getElementById('toolStatusBox');
     if (data.success) {
         box.innerHTML = data.enabled
-            ? '<span class="badge on">🟢 TOOL ĐANG BẬT</span>'
-            : '<span class="badge off">🔴 TOOL ĐANG TẮT</span>';
+            ? '<span class="badge on">🟢 TOOL MOSLOT ĐANG BẬT</span>'
+            : '<span class="badge off">🔴 TOOL MOSLOT ĐANG TẮT</span>';
         document.getElementById('toolMessage').value = data.message || '';
-    } else box.textContent = 'Không tải được trạng thái';
+    }
+}
+
+async function loadMagicStatus() {
+    const data = await api('/api/admin/magic-status', null, 'GET');
+    const box = document.getElementById('magicStatusBox');
+    if (data.success) {
+        box.innerHTML = data.enabled
+            ? '<span class="badge on">🟢 TOOL MAGIC ĐANG BẬT</span>'
+            : '<span class="badge off">🔴 TOOL MAGIC ĐANG TẮT</span>';
+        document.getElementById('magicMessage').value = data.message || '';
+    }
 }
 
 async function toggleTool(enabled) {
     const message = document.getElementById('toolMessage').value.trim();
     const res = await api('/api/admin/toggle-tool', { enabled, message });
     if (res.success) {
-        showMsg('toolMsg', enabled ? '✅ Đã BẬT tool' : '⛔ Đã TẮT tool', 'ok');
-        loadToolStatus();
-        loadStats();
+        showMsg('toolMsg', enabled ? '✅ Đã BẬT MoSlot' : '⛔ Đã TẮT MoSlot', 'ok');
+        loadToolStatus(); loadStats();
     } else showMsg('toolMsg', '❌ ' + (res.message || 'Lỗi'), 'err');
 }
 
 async function saveMessage() {
     const message = document.getElementById('toolMessage').value.trim();
     const res = await api('/api/admin/toggle-tool', { enabled: true, message });
-    if (res.success) { showMsg('toolMsg', '💾 Đã lưu thông báo', 'ok'); loadToolStatus(); }
-    else showMsg('toolMsg', '❌ ' + (res.message || 'Lỗi'), 'err');
+    if (res.success) { showMsg('toolMsg', '💾 Đã lưu', 'ok'); loadToolStatus(); }
 }
 
-async function loadKeys() {
-    const tbody = document.querySelector('#keysTable tbody');
-    const data = await api('/api/admin/list-keys', null, 'GET');
-    if (!data.success || !data.keys || data.keys.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" class="empty">Chưa có key nào</td></tr>';
+async function toggleMagic(enabled) {
+    const message = document.getElementById('magicMessage').value.trim();
+    const res = await api('/api/admin/toggle-magic', { enabled, message });
+    if (res.success) {
+        showMsg('magicMsg', enabled ? '✅ Đã BẬT Magic' : '⛔ Đã TẮT Magic', 'ok');
+        loadMagicStatus(); loadStats();
+    } else showMsg('magicMsg', '❌ ' + (res.message || 'Lỗi'), 'err');
+}
+
+async function saveMagicMessage() {
+    const message = document.getElementById('magicMessage').value.trim();
+    const res = await api('/api/admin/toggle-magic', { enabled: true, message });
+    if (res.success) { showMsg('magicMsg', '💾 Đã lưu', 'ok'); loadMagicStatus(); }
+}
+
+async function createKey(toolType) {
+    const suffix = toolType === 'magic' ? 'G' : 'M';
+    const maxUses = parseInt(document.getElementById('keyMaxUses' + suffix).value) || 10;
+    const expiry = document.getElementById('keyExpiry' + suffix).value || '2028-12-31';
+    const note = document.getElementById('keyNote' + suffix).value.trim() || 'Key mới';
+    const res = await api('/api/admin/create-key', { maxUses, expiry, note, toolType });
+    if (res.success) {
+        showMsg('createKeyMsg' + suffix, '✅ Đã tạo key ' + toolType.toUpperCase() + ': ' + res.key, 'ok');
+        document.getElementById('keyNote' + suffix).value = '';
+        loadKeys(toolType); loadStats();
+    } else showMsg('createKeyMsg' + suffix, '❌ ' + (res.message || 'Lỗi'), 'err');
+}
+
+async function loadKeys(toolType) {
+    const suffix = toolType === 'magic' ? 'G' : 'M';
+    const tbody = document.querySelector('#keysTable' + suffix + ' tbody');
+    const res = await api('/api/admin/list-keys?toolType=' + toolType, null, 'GET');
+    if (!res.success || !res.keys || res.keys.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="empty">Chưa có key ' + toolType + ' nào</td></tr>';
         return;
     }
-    tbody.innerHTML = data.keys.map(k => {
+    tbody.innerHTML = res.keys.map(k => {
         const active = k.active !== undefined ? k.active : (k.status === 'active');
         const hwidDisplay = k.hwid
-            ? '<span class="badge on">🔒 ' + escapeHtml(k.hwid.substring(0,8)) + '...</span>'
-            : '<span class="badge warn-badge">🆓 Chưa dùng</span>';
+            ? '<span class="badge on">🔒 ' + escapeHtml(k.hwid.substring(0,8)) + '</span>'
+            : '<span class="badge warn-badge">🆓 Mới</span>';
         return `
         <tr>
             <td class="key">${escapeHtml(k.key)}</td>
@@ -451,67 +565,124 @@ async function loadKeys() {
             <td>${hwidDisplay}</td>
             <td><span class="badge ${active ? 'on' : 'off'}">${active ? '🟢 ON' : '🔴 OFF'}</span></td>
             <td>
-                <button class="small ok" onclick="editKey('${escapeHtml(k.key)}')">✏️</button>
-                <button class="small warn" onclick="toggleKey('${escapeHtml(k.key)}', ${active})">${active ? '⛔' : '✅'}</button>
-                <button class="small danger" onclick="resetHwid('${escapeHtml(k.key)}')">🔓</button>
-                <button class="small danger" onclick="deleteKey('${escapeHtml(k.key)}')">🗑️</button>
+                <button class="small ok" onclick="editKey('${escapeHtml(k.key)}', '${toolType}')">✏️</button>
+                <button class="small warn" onclick="toggleKey('${escapeHtml(k.key)}', ${active}, '${toolType}')">${active ? '⛔' : '✅'}</button>
+                <button class="small danger" onclick="resetHwid('${escapeHtml(k.key)}', '${toolType}')">🔓</button>
+                <button class="small danger" onclick="deleteKey('${escapeHtml(k.key)}', '${toolType}')">🗑️</button>
             </td>
         </tr>`;
     }).join('');
 }
 
-async function createKey() {
-    const maxUses = parseInt(document.getElementById('keyMaxUses').value) || 999;
-    const expiry = document.getElementById('keyExpiry').value || '2028-12-31';
-    const note = document.getElementById('keyNote').value.trim() || 'Key mới';
-    const res = await api('/api/admin/create-key', { maxUses, expiry, note });
-    if (res.success) {
-        showMsg('createKeyMsg', '✅ Đã tạo key: ' + res.key, 'ok');
-        document.getElementById('keyNote').value = '';
-        loadKeys();
-        loadStats();
-    } else showMsg('createKeyMsg', '❌ ' + (res.message || 'Lỗi'), 'err');
-}
-
-async function editKey(key) {
-    const res = await api('/api/admin/list-keys', null, 'GET');
+async function editKey(key, toolType) {
+    const res = await api('/api/admin/list-keys?toolType=' + toolType, null, 'GET');
     const k = res.keys.find(x => x.key === key);
     if (!k) return toast('Không tìm thấy key', 'err');
 
-    const newMaxUses = prompt('📊 Sửa số lượt TỐI ĐA (maxUses):\nHiện tại: ' + (k.maxUses ?? 999), k.maxUses ?? 999);
+    const newMaxUses = prompt('📊 Sửa số lượt TỐI ĐA:\nHiện tại: ' + (k.maxUses ?? 10), k.maxUses ?? 10);
     if (newMaxUses === null) return;
-    const newUsed = prompt('🔢 Sửa số lượt ĐÃ DÙNG (used):\nHiện tại: ' + (k.used ?? 0) + '\n(0 = reset)', k.used ?? 0);
+    const newUsed = prompt('🔢 Sửa số lượt ĐÃ DÙNG:\nHiện tại: ' + (k.used ?? 0), k.used ?? 0);
     if (newUsed === null) return;
     const newNote = prompt('📝 Sửa ghi chú:\nHiện tại: ' + (k.note || ''), k.note || '');
     if (newNote === null) return;
-    const newExpiry = prompt('📅 Sửa ngày hết hạn (YYYY-MM-DD):\nHiện tại: ' + (k.expiry || '2028-12-31'), k.expiry || '2028-12-31');
+    const newExpiry = prompt('📅 Ngày hết hạn (YYYY-MM-DD):\nHiện tại: ' + (k.expiry || '2028-12-31'), k.expiry || '2028-12-31');
     if (newExpiry === null) return;
 
-    const upd = await api('/api/admin/update-key', {
-        key, maxUses: newMaxUses, used: newUsed, note: newNote, expiry: newExpiry
-    });
-    if (upd.success) { toast('✅ Đã cập nhật key!'); loadKeys(); }
+    const upd = await api('/api/admin/update-key', { key, maxUses: newMaxUses, used: newUsed, note: newNote, expiry: newExpiry });
+    if (upd.success) { toast('✅ Đã cập nhật key!'); loadKeys(toolType); }
     else toast('❌ ' + (upd.message || 'Lỗi'), 'err');
 }
 
-async function resetHwid(key) {
-    if (!confirm('Reset HWID cho key này?\nKhách sẽ dùng được key trên máy mới.\n\nKey: ' + key)) return;
+async function resetHwid(key, toolType) {
+    if (!confirm('Reset HWID cho key này?\nKey: ' + key)) return;
     const res = await api('/api/admin/reset-hwid', { key });
-    if (res.success) { toast('🔓 Đã reset HWID'); loadKeys(); }
+    if (res.success) { toast('🔓 Đã reset HWID'); loadKeys(toolType); }
     else toast('❌ ' + (res.message || 'Lỗi'), 'err');
 }
 
-async function toggleKey(key, isActive) {
+async function toggleKey(key, isActive, toolType) {
     const path = isActive ? '/api/admin/disable-key' : '/api/admin/enable-key';
     const res = await api(path, { key });
-    if (res.success) { toast(isActive ? '⛔ Đã tắt key' : '✅ Đã bật key'); loadKeys(); }
+    if (res.success) { toast(isActive ? '⛔ Đã tắt' : '✅ Đã bật'); loadKeys(toolType); }
     else toast('❌ ' + (res.message || 'Lỗi'), 'err');
 }
 
-async function deleteKey(key) {
-    if (!confirm('Xoá key này?\n' + key)) return;
+async function deleteKey(key, toolType) {
+    if (!confirm('Xoá key?\n' + key)) return;
     const res = await api('/api/admin/delete-key', { key });
-    if (res.success) { toast('🗑️ Đã xoá key'); loadKeys(); loadStats(); }
+    if (res.success) { toast('🗑️ Đã xoá'); loadKeys(toolType); loadStats(); }
+    else toast('❌ ' + (res.message || 'Lỗi'), 'err');
+}
+
+async function createReward(toolType) {
+    const suffix = toolType === 'magic' ? 'G' : 'M';
+    const code = document.getElementById('rewardCode' + suffix).value.trim().toUpperCase();
+    const link = document.getElementById('rewardLink' + suffix).value.trim();
+    const keyMaxUses = parseInt(document.getElementById('rewardMaxUses' + suffix).value) || 10;
+    const provider = document.getElementById('rewardProvider' + suffix).value;
+    const note = document.getElementById('rewardNote' + suffix).value.trim();
+
+    if (!code || code.length < 3) return showMsg('createRewardMsg' + suffix, '❌ Mã phải từ 3 ký tự!', 'err');
+    if (!link) return showMsg('createRewardMsg' + suffix, '❌ Thiếu link!', 'err');
+
+    const res = await api('/api/admin/create-reward', { code, link, keyMaxUses, provider, note, toolType });
+    if (res.success) {
+        showMsg('createRewardMsg' + suffix, '✅ Đã tạo mã: ' + code, 'ok');
+        document.getElementById('rewardCode' + suffix).value = '';
+        document.getElementById('rewardLink' + suffix).value = '';
+        loadRewards(toolType);
+    } else {
+        showMsg('createRewardMsg' + suffix, '❌ ' + (res.message || 'Lỗi'), 'err');
+    }
+}
+
+async function loadRewards(toolType) {
+    const suffix = toolType === 'magic' ? 'G' : 'M';
+    const tbody = document.querySelector('#rewardsTable' + suffix + ' tbody');
+    const res = await api('/api/admin/list-rewards?toolType=' + toolType, null, 'GET');
+
+    if (!res.success || !res.rewards || res.rewards.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" class="empty">Chưa có mã nào</td></tr>';
+        document.getElementById('statRewardTotal' + suffix).textContent = '0';
+        document.getElementById('statRewardUsed' + suffix).textContent = '0';
+        document.getElementById('statRewardAvailable' + suffix).textContent = '0';
+        return;
+    }
+
+    document.getElementById('statRewardTotal' + suffix).textContent = res.total;
+    document.getElementById('statRewardUsed' + suffix).textContent = res.used;
+    document.getElementById('statRewardAvailable' + suffix).textContent = res.available;
+
+    tbody.innerHTML = res.rewards.map(r => `
+        <tr>
+            <td class="key">${escapeHtml(r.code)}</td>
+            <td class="key" style="max-width:150px; overflow:hidden">
+                <a href="${escapeHtml(r.link)}" target="_blank" style="color:#38bdf8">${escapeHtml(r.link.substring(0, 25))}...</a>
+            </td>
+            <td>${escapeHtml(r.provider || '-')}</td>
+            <td>${r.keyMaxUses || 10}</td>
+            <td>${r.used ? '<span class="badge off">✅ Đã dùng</span>' : '<span class="badge on">🆓 Chưa</span>'}</td>
+            <td class="key">${r.keyGiven ? escapeHtml(r.keyGiven.substring(0, 20)) + '...' : '-'}</td>
+            <td class="key">${r.usedBy ? escapeHtml(r.usedBy) : '-'}</td>
+            <td>
+                <button class="small warn" onclick="resetReward('${escapeHtml(r.code)}', '${toolType}')">🔄</button>
+                <button class="small danger" onclick="deleteReward('${escapeHtml(r.code)}', '${toolType}')">🗑️</button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+async function resetReward(code, toolType) {
+    if (!confirm('Reset mã ' + code + '?')) return;
+    const res = await api('/api/admin/reset-reward', { code });
+    if (res.success) { toast('🔄 Đã reset'); loadRewards(toolType); }
+    else toast('❌ ' + (res.message || 'Lỗi'), 'err');
+}
+
+async function deleteReward(code, toolType) {
+    if (!confirm('Xoá mã ' + code + '?')) return;
+    const res = await api('/api/admin/delete-reward', { code });
+    if (res.success) { toast('🗑️ Đã xoá'); loadRewards(toolType); }
     else toast('❌ ' + (res.message || 'Lỗi'), 'err');
 }
 
@@ -519,7 +690,7 @@ async function loadUsers() {
     const tbody = document.querySelector('#usersTable tbody');
     const data = await api('/api/admin/users', null, 'GET');
     if (!data.success || !data.users || data.users.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" class="empty">Chưa có user nào dùng tool</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" class="empty">Chưa có user</td></tr>';
         return;
     }
     tbody.innerHTML = data.users.map(u => `
@@ -541,99 +712,24 @@ async function loadLogs() {
     const path = '/api/admin/logs' + (filterKey ? '?key=' + encodeURIComponent(filterKey) : '');
     const data = await api(path, null, 'GET');
     if (!data.success || !data.logs || data.logs.length === 0) {
-        box.innerHTML = '<div class="empty">Chưa có log nào</div>';
+        box.innerHTML = '<div class="empty">Chưa có log</div>';
         return;
     }
     box.innerHTML = data.logs.map(l => {
-        const isSuccess = l.action === 'VERIFY_SUCCESS' || l.action === 'START_SUCCESS' || l.action === 'OPEN_SLOT' || l.action === 'GETKEY_SUCCESS' || l.status === 'SUCCESS';
-        const cls = isSuccess ? 'success' : 'fail';
+        const isMagic = l.action && l.action.startsWith('MAGIC_');
+        const isSuccess = l.status === 'SUCCESS' || l.action === 'OPEN_SLOT';
+        let cls = 'fail';
+        if (isMagic) cls = 'magic';
+        else if (isSuccess) cls = 'success';
         return `
             <div class="log-item ${cls}">
                 <div class="time">${formatTime(l.timestamp)} · ${escapeHtml(l.ip || '')}</div>
                 <div><strong>${escapeHtml(l.action || '')}</strong> · ${escapeHtml(l.status || '')}</div>
                 <div>${escapeHtml(l.message || '')}</div>
-                <div class="key">Key: ${escapeHtml(l.key || '-')} | UNIQ: ${escapeHtml(l.uniqId || '-')} | User: ${escapeHtml(l.username || '-')} | Platform: ${escapeHtml(l.platform || '-')}</div>
+                <div class="key">Key: ${escapeHtml(l.key || '-')} | UNIQ: ${escapeHtml(l.uniqId || '-')} | User: ${escapeHtml(l.username || '-')}</div>
             </div>
         `;
     }).join('');
-}
-
-// ============================================================
-// REWARDS
-// ============================================================
-
-async function createReward() {
-    const code = document.getElementById('rewardCode').value.trim().toUpperCase();
-    const link = document.getElementById('rewardLink').value.trim();
-    const keyMaxUses = parseInt(document.getElementById('rewardMaxUses').value) || 10;
-    const provider = document.getElementById('rewardProvider').value;
-    const note = document.getElementById('rewardNote').value.trim();
-
-    if (!code || code.length < 3) return showMsg('createRewardMsg', '❌ Mã phải từ 3 ký tự!', 'err');
-    if (!link) return showMsg('createRewardMsg', '❌ Thiếu link!', 'err');
-
-    const res = await api('/api/admin/create-reward', { code, link, keyMaxUses, provider, note });
-    if (res.success) {
-        showMsg('createRewardMsg', '✅ Đã tạo mã: ' + code, 'ok');
-        document.getElementById('rewardCode').value = '';
-        document.getElementById('rewardLink').value = '';
-        document.getElementById('rewardNote').value = '';
-        loadRewards();
-    } else {
-        showMsg('createRewardMsg', '❌ ' + (res.message || 'Lỗi'), 'err');
-    }
-}
-
-async function loadRewards() {
-    const tbody = document.querySelector('#rewardsTable tbody');
-    const stats = await api('/api/admin/getkey-stats', null, 'GET');
-    const res = await api('/api/admin/list-rewards', null, 'GET');
-
-    if (stats.success) {
-        document.getElementById('statRewardTotal').textContent = stats.totalRewards ?? '-';
-        document.getElementById('statRewardUsed').textContent = stats.usedRewards ?? '-';
-        document.getElementById('statRewardAvailable').textContent = (stats.totalRewards - stats.usedRewards) ?? '-';
-        document.getElementById('statGetkeyToday').textContent = stats.today ?? '-';
-    }
-
-    if (!res.success || !res.rewards || res.rewards.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8" class="empty">Chưa có mã nào</td></tr>';
-        return;
-    }
-
-    tbody.innerHTML = res.rewards.map(r => `
-        <tr>
-            <td class="key">${escapeHtml(r.code)}</td>
-            <td class="key" style="max-width:180px; overflow:hidden; text-overflow:ellipsis">
-                <a href="${escapeHtml(r.link)}" target="_blank" style="color:#38bdf8">${escapeHtml(r.link.substring(0, 30))}...</a>
-            </td>
-            <td>${escapeHtml(r.provider || '-')}</td>
-            <td>${r.keyMaxUses || 10}</td>
-            <td>${r.used
-                ? '<span class="badge off">✅ Đã dùng</span>'
-                : '<span class="badge on">🆓 Chưa dùng</span>'}</td>
-            <td class="key">${r.keyGiven ? escapeHtml(r.keyGiven.substring(0, 20)) + '...' : '-'}</td>
-            <td class="key">${r.usedBy ? escapeHtml(r.usedBy) : '-'}<br><small style="color:#64748b">${r.usedAtText || ''}</small></td>
-            <td>
-                <button class="small warn" onclick="resetReward('${escapeHtml(r.code)}')">🔄</button>
-                <button class="small danger" onclick="deleteReward('${escapeHtml(r.code)}')">🗑️</button>
-            </td>
-        </tr>
-    `).join('');
-}
-
-async function resetReward(code) {
-    if (!confirm('Reset mã ' + code + '?\nKhách sẽ dùng lại được mã này.')) return;
-    const res = await api('/api/admin/reset-reward', { code });
-    if (res.success) { toast('🔄 Đã reset mã'); loadRewards(); }
-    else toast('❌ ' + (res.message || 'Lỗi'), 'err');
-}
-
-async function deleteReward(code) {
-    if (!confirm('Xoá mã ' + code + '?')) return;
-    const res = await api('/api/admin/delete-reward', { code });
-    if (res.success) { toast('🗑️ Đã xoá mã'); loadRewards(); }
-    else toast('❌ ' + (res.message || 'Lỗi'), 'err');
 }
 
 async function loadGetkeyLogs() {
@@ -644,9 +740,9 @@ async function loadGetkeyLogs() {
         return;
     }
     box.innerHTML = res.logs.map(l => `
-        <div class="log-item success">
+        <div class="log-item ${l.toolType === 'magic' ? 'magic' : 'success'}">
             <div class="time">${formatTime(l.time)} · IP: ${escapeHtml(l.ip || '')}</div>
-            <div><strong>Mã:</strong> ${escapeHtml(l.code)}</div>
+            <div><strong>Mã:</strong> ${escapeHtml(l.code)} | <strong>Loại:</strong> ${escapeHtml((l.toolType || 'moslot').toUpperCase())}</div>
             <div class="key"><strong>Key đã cấp:</strong> ${escapeHtml(l.keyGiven || '')}</div>
         </div>
     `).join('');
