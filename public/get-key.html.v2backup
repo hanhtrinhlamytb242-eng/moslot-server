@@ -25,34 +25,35 @@ body {
     padding: 24px;
     box-shadow: 0 20px 60px rgba(0,0,0,0.5);
 }
-.header { text-align: center; margin-bottom: 20px; }
+.header { text-align: center; margin-bottom: 24px; }
 .header h1 { color: #38bdf8; font-size: 26px; margin-bottom: 8px; }
 .header p { color: #94a3b8; font-size: 14px; }
 
+/* Tool selection */
 .tool-select {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 12px;
-    margin-bottom: 16px;
+    margin-bottom: 14px;
 }
 .tool-btn {
     background: #0f172a;
     border: 2px solid #334155;
     border-radius: 12px;
-    padding: 16px 12px;
+    padding: 20px 14px;
     text-align: center;
     cursor: pointer;
     transition: all 0.2s;
-    user-select: none;
 }
-.tool-btn:hover { border-color: #38bdf8; }
+.tool-btn:hover { border-color: #38bdf8; transform: translateY(-2px); }
 .tool-btn.selected { border-color: #38bdf8; background: #0c4a6e; }
 .tool-btn.selected.magic { border-color: #a855f7; background: #581c87; }
-.tool-btn .icon { font-size: 28px; margin-bottom: 6px; }
-.tool-btn .name { font-size: 14px; font-weight: bold; color: #e2e8f0; }
-.tool-btn .desc { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+.tool-btn .icon { font-size: 32px; margin-bottom: 6px; }
+.tool-btn .name { font-size: 15px; font-weight: bold; color: #e2e8f0; margin-bottom: 4px; }
+.tool-btn .desc { font-size: 11px; color: #94a3b8; }
 
-.action-box {
+/* Steps */
+.step {
     background: #0f172a;
     border: 1px solid #334155;
     border-left: 4px solid #0ea5e9;
@@ -60,31 +61,19 @@ body {
     padding: 16px;
     margin-bottom: 14px;
 }
-.action-box.magic { border-left-color: #a855f7; }
-.action-box.hidden { display: none; }
-.action-title {
-    color: #38bdf8;
-    font-size: 15px;
-    font-weight: bold;
-    margin-bottom: 12px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+.step.active { border-left-color: #10b981; box-shadow: 0 0 20px rgba(16, 185, 129, 0.15); }
+.step.magic-step { border-left-color: #a855f7; }
+.step-title { color: #38bdf8; font-size: 15px; font-weight: bold; margin-bottom: 10px; }
+.step-title .num {
+    display: inline-block;
+    background: #0ea5e9; color: white;
+    width: 24px; height: 24px; line-height: 24px;
+    text-align: center; border-radius: 50%;
+    margin-right: 8px; font-size: 13px;
 }
-.action-box.magic .action-title { color: #c084fc; }
-
-.link-display {
-    background: #020617;
-    border: 2px solid #0ea5e9;
-    border-radius: 10px;
-    padding: 14px;
-    text-align: center;
-    margin-bottom: 12px;
-}
-.link-display.magic { border-color: #a855f7; }
-.link-display .provider { color: #94a3b8; font-size: 12px; margin-bottom: 4px; }
-.link-display .provider-name { color: #fbbf24; font-size: 16px; font-weight: bold; }
-.link-display .loading { color: #38bdf8; padding: 10px; }
+.step.active .step-title .num { background: #10b981; }
+.step.magic-step .step-title .num { background: #a855f7; }
+.step.magic-step .step-title { color: #c084fc; }
 
 button.action {
     background: linear-gradient(135deg, #0ea5e9, #0284c7);
@@ -92,28 +81,12 @@ button.action {
     padding: 14px 20px; font-size: 16px; font-weight: bold;
     cursor: pointer; width: 100%; transition: all 0.2s;
     font-family: inherit;
-    margin-bottom: 10px;
 }
-button.action:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 30px rgba(14, 165, 233, 0.4);
-}
+button.action:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(14, 165, 233, 0.4); }
 button.action:disabled { background: #334155; cursor: not-allowed; opacity: 0.6; }
 button.action.magic { background: linear-gradient(135deg, #a855f7, #7e22ce); }
 button.action.magic:hover:not(:disabled) { box-shadow: 0 10px 30px rgba(168, 85, 247, 0.4); }
 button.action.success { background: linear-gradient(135deg, #10b981, #059669); }
-button.action.success:hover:not(:disabled) { box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4); }
-
-.divider {
-    text-align: center; color: #475569; font-size: 12px;
-    margin: 12px 0; position: relative;
-}
-.divider::before, .divider::after {
-    content: ''; position: absolute; top: 50%;
-    width: 40%; height: 1px; background: #334155;
-}
-.divider::before { left: 0; }
-.divider::after { right: 0; }
 
 input {
     background: #0f172a;
@@ -125,7 +98,6 @@ input {
     text-align: center; letter-spacing: 3px;
     font-weight: bold; font-family: 'Courier New', monospace;
     transition: all 0.2s;
-    margin-bottom: 10px;
 }
 input:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.1); }
 
@@ -138,7 +110,6 @@ input:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 4px rgba(5
 .msg.ok { background: #065f46; color: #6ee7b7; border: 1px solid #10b981; }
 .msg.err { background: #7f1d1d; color: #fca5a5; border: 1px solid #ef4444; }
 .msg.info { background: #1e3a8a; color: #93c5fd; border: 1px solid #3b82f6; }
-.msg.warn { background: #78350f; color: #fcd34d; border: 1px solid #f59e0b; }
 
 .hidden { display: none !important; }
 
@@ -184,17 +155,36 @@ input:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 4px rgba(5
     border-left: 3px solid #3b82f6;
     border-radius: 8px;
     padding: 12px; font-size: 13px;
-    color: #93c5fd;
-    margin-top: 12px;
+    color: #93c5fd; margin-top: 12px;
 }
 .tips.magic { background: #581c87; border-color: #a855f7; color: #d8b4fe; }
 .tips.success { background: #065f46; border-color: #10b981; color: #6ee7b7; }
-.tips.warn { background: #78350f; border-color: #f59e0b; color: #fcd34d; }
+
+.loading {
+    text-align: center; padding: 20px; color: #38bdf8;
+}
+.loading::after {
+    content: '...'; animation: dots 1.5s infinite;
+}
+@keyframes dots {
+    0%, 20% { content: '.'; }
+    40% { content: '..'; }
+    60%, 100% { content: '...'; }
+}
 
 .footer {
     text-align: center; color: #475569;
     font-size: 11px; margin-top: 20px;
 }
+
+.current-tool {
+    display: inline-block;
+    background: #0c4a6e; color: #38bdf8;
+    padding: 4px 12px; border-radius: 20px;
+    font-size: 12px; font-weight: bold;
+    margin-bottom: 12px;
+}
+.current-tool.magic { background: #581c87; color: #d8b4fe; }
 </style>
 </head>
 <body>
@@ -222,74 +212,70 @@ input:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 4px rgba(5
             </div>
         </div>
 
-        <!-- BOX: VƯỢT LINK + NHẬP MÃ -->
-        <div id="actionBox" class="action-box hidden">
-            <div class="action-title">
-                <span>🔗</span> Bước 1: Vượt link nhận mã
+        <!-- BƯỚC 1: VƯỢT LINK -->
+        <div id="step1" class="step hidden">
+            <div class="step-title">
+                <span class="num">1</span>Vượt link nhận mã xác nhận
             </div>
-
-            <div class="link-display" id="linkDisplay">
+            <div id="linkBox">
                 <div class="loading">Đang tải link</div>
             </div>
-
-            <button id="btnGoLink" class="action" onclick="openLink()">🔗 VƯỢT LINK NGAY</button>
-
-            <div class="divider">SAU KHI VƯỢT LINK, NHẬP MÃ BÊN DƯỚI</div>
-
-            <div class="action-title" style="margin-top:12px">
-                <span>📝</span> Bước 2: Nhập mã xác nhận
+            <div id="linkActions" class="hidden" style="margin-top:10px">
+                <button id="btnGoLink" class="action" onclick="openLink()">🔗 VƯỢT LINK NGAY</button>
+                <div class="tips" id="tip1">
+                    💡 Sau khi vượt link, bạn sẽ thấy <strong>mã xác nhận</strong>.
+                    Copy mã đó và nhập vào ô bên dưới.
+                </div>
             </div>
+            <div id="linkMsg" class="msg"></div>
+        </div>
 
+        <!-- BƯỚC 2: NHẬP MÃ -->
+        <div id="step2" class="step hidden">
+            <div class="step-title">
+                <span class="num">2</span>Nhập mã xác nhận
+            </div>
             <input type="text" id="codeInput" placeholder="NHẬP MÃ" maxlength="20" autocomplete="off">
-
-            <button id="btnVerify" class="action success" onclick="verifyCode()">✅ XÁC NHẬN NHẬN KEY</button>
-
-            <div class="tips" id="tipBox">
-                💡 Sau khi bấm <strong>VƯỢT LINK</strong>, bạn sẽ được chuyển đến trang quảng cáo.
-                Vượt qua quảng cáo để thấy <strong>mã xác nhận</strong>, sau đó nhập vào ô trên.
-            </div>
-
+            <button id="btnVerify" class="action" onclick="verifyCode()" style="margin-top:10px">✅ XÁC NHẬN NHẬN KEY</button>
             <div id="verifyMsg" class="msg"></div>
         </div>
 
         <!-- BƯỚC 3: NHẬN KEY -->
-        <div id="step3" class="hidden" style="margin-top:14px">
-            <div class="action-box" id="keyResultBox">
-                <div class="action-title">
-                    <span>🎉</span> Key của bạn
+        <div id="step3" class="step hidden">
+            <div class="step-title">
+                <span class="num">✓</span>Key của bạn
+            </div>
+            <div class="key-box" id="keyBox">
+                <div class="label">KEY SỬ DỤNG TOOL</div>
+                <div class="key" id="keyResult">-</div>
+                <button class="copy-btn" onclick="copyKey()">📋 COPY KEY</button>
+            </div>
+            <div class="key-info">
+                <div>
+                    <div class="label">Số lượt</div>
+                    <div class="value" id="keyMaxUses">-</div>
                 </div>
-                <div class="key-box" id="keyBox">
-                    <div class="label">KEY SỬ DỤNG TOOL</div>
-                    <div class="key" id="keyResult">-</div>
-                    <button class="copy-btn" onclick="copyKey()">📋 COPY KEY</button>
+                <div>
+                    <div class="label">Còn lại</div>
+                    <div class="value" id="keyRemaining">-</div>
                 </div>
-                <div class="key-info">
-                    <div>
-                        <div class="label">Số lượt</div>
-                        <div class="value" id="keyMaxUses">-</div>
-                    </div>
-                    <div>
-                        <div class="label">Còn lại</div>
-                        <div class="value" id="keyRemaining">-</div>
-                    </div>
-                    <div>
-                        <div class="label">Hết hạn</div>
-                        <div class="value" id="keyExpiry">-</div>
-                    </div>
-                    <div>
-                        <div class="label">Hôm nay đã lấy</div>
-                        <div class="value" id="keyRateLimit">-</div>
-                    </div>
+                <div>
+                    <div class="label">Hết hạn</div>
+                    <div class="value" id="keyExpiry">-</div>
                 </div>
-                <div class="tips success" id="tipSuccess">
-                    ✅ <strong>LƯU LẠI KEY NÀY!</strong><br>
-                    Dùng key này khi chạy tool.<br>
-                    Mỗi key chỉ dùng được trên 1 máy.
+                <div>
+                    <div class="label">Hôm nay đã lấy</div>
+                    <div class="value" id="keyRateLimit">-</div>
                 </div>
-                <div class="key-info" style="margin-top:12px">
-                    <div style="grid-column: 1 / -1; text-align:center; color:#64748b; font-size:12px">
-                        💡 Muốn lấy thêm key? Nhấn <a href="#" onclick="location.reload()" style="color:#38bdf8">Tải lại trang</a> (tối đa 5 lần/ngày)
-                    </div>
+            </div>
+            <div class="tips success" id="tipSuccess">
+                ✅ <strong>LƯU LẠI KEY NÀY!</strong><br>
+                Dùng key này khi chạy tool.<br>
+                Mỗi key chỉ dùng được trên 1 máy.
+            </div>
+            <div class="key-info" style="margin-top:12px">
+                <div style="grid-column: 1 / -1; text-align:center; color:#64748b; font-size:12px">
+                    💡 Muốn lấy thêm key? Nhấn <a href="#" onclick="location.reload()" style="color:#38bdf8">Tải lại trang</a> (tối đa 5 lần/ngày)
                 </div>
             </div>
         </div>
@@ -306,26 +292,13 @@ let currentLink = '';
 let currentProvider = '';
 let currentToolType = '';
 
-// Fetch với timeout
-async function fetchWithTimeout(url, options, timeout = 15000) {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), timeout);
-    try {
-        const res = await fetch(url, { ...options, signal: controller.signal });
-        clearTimeout(timeoutId);
-        return res;
-    } catch (e) {
-        clearTimeout(timeoutId);
-        throw e;
-    }
-}
-
 // ============================================================
 // CHỌN TOOL
 // ============================================================
 function selectTool(toolType) {
     currentToolType = toolType;
 
+    // Highlight nút được chọn
     document.getElementById('btnMoslot').classList.remove('selected', 'magic');
     document.getElementById('btnMagic').classList.remove('selected', 'magic');
 
@@ -335,20 +308,30 @@ function selectTool(toolType) {
         document.getElementById('btnMagic').classList.add('selected', 'magic');
     }
 
+    // Ẩn tool select, hiện bước 1
     document.getElementById('toolSelectBox').classList.add('hidden');
 
-    const actionBox = document.getElementById('actionBox');
-    actionBox.classList.remove('hidden', 'magic');
+    // Style theo tool
+    const steps = document.querySelectorAll('.step');
+    steps.forEach(s => {
+        s.classList.remove('magic-step', 'active');
+    });
+
     if (toolType === 'magic') {
-        actionBox.classList.add('magic');
+        document.getElementById('step1').classList.add('magic-step');
+        document.getElementById('step2').classList.add('magic-step');
         document.getElementById('btnGoLink').classList.add('magic');
         document.getElementById('btnVerify').classList.add('magic');
-        document.getElementById('tipBox').classList.add('magic');
-        document.getElementById('linkDisplay').classList.add('magic');
         document.getElementById('keyBox').classList.add('magic');
+        document.getElementById('tip1').classList.add('magic');
         document.getElementById('tipSuccess').classList.add('magic');
+    } else {
+        document.getElementById('step1').classList.add('active');
     }
 
+    document.getElementById('step1').classList.remove('hidden');
+
+    // Load link
     loadLink(toolType);
 }
 
@@ -356,62 +339,53 @@ function selectTool(toolType) {
 // LOAD LINK
 // ============================================================
 async function loadLink(toolType) {
-    const linkDisplay = document.getElementById('linkDisplay');
-    const btnGoLink = document.getElementById('btnGoLink');
+    const linkBox = document.getElementById('linkBox');
+    const linkActions = document.getElementById('linkActions');
 
-    linkDisplay.innerHTML = '<div class="loading">Đang tải link</div>';
-    btnGoLink.disabled = true;
-    btnGoLink.textContent = '⏳ Đang tải...';
-    currentLink = '';
+    linkBox.innerHTML = '<div class="loading">Đang tải link</div>';
+    linkActions.classList.add('hidden');
 
     try {
-        const res = await fetchWithTimeout(API + '/api/getkey/start', {
+        const res = await fetch(API + '/api/getkey/start', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ toolType: toolType })
-        }, 15000);
-
+        });
         const data = await res.json();
 
         if (!data.success) {
-            // Hết link - vẫn hiện form nhập mã
-            linkDisplay.innerHTML = `
-                <div style="text-align:center; padding:8px 0">
-                    <div style="color:#fcd34d; font-size:14px; font-weight:bold">
-                        😔 Hết link, vui lòng đợi admin cập nhật
-                    </div>
-                </div>
-            `;
-            btnGoLink.disabled = true;
-            btnGoLink.textContent = '⛔ Hết link';
-            currentLink = '';
+            linkBox.innerHTML = '<div class="msg show err">' + (data.message || 'Lỗi') + '</div>';
             return;
         }
 
         currentLink = data.link;
         currentProvider = data.provider || 'Khác';
 
-        linkDisplay.innerHTML = `
-            <div class="provider">Nhà cung cấp</div>
-            <div class="provider-name">${escapeHtml(currentProvider)}</div>
+        const toolLabel = toolType === 'magic' ? '✨ Magic' : '🎮 MoSlot';
+        linkBox.innerHTML = `
+            <div style="text-align:center; padding:14px 0">
+                <div style="color:#94a3b8; font-size:12px; margin-bottom:6px">Tool đã chọn</div>
+                <div style="color:${toolType === 'magic' ? '#c084fc' : '#38bdf8'}; font-size:18px; font-weight:bold; margin-bottom:10px">${toolLabel}</div>
+                <div style="color:#94a3b8; font-size:12px; margin-bottom:6px">Nhà cung cấp</div>
+                <div style="color:#fbbf24; font-size:16px; font-weight:bold">${escapeHtml(currentProvider)}</div>
+            </div>
         `;
-        btnGoLink.disabled = false;
-        btnGoLink.textContent = '🔗 VƯỢT LINK NGAY';
-
+        linkActions.classList.remove('hidden');
     } catch (e) {
-        if (e.name === 'AbortError') {
-            linkDisplay.innerHTML = '<div class="msg show err" style="display:block">Server không phản hồi, vui lòng thử lại</div>';
-        } else {
-            linkDisplay.innerHTML = '<div class="msg show err" style="display:block">Lỗi kết nối server</div>';
-        }
-        btnGoLink.disabled = true;
-        btnGoLink.textContent = '❌ Lỗi tải link';
+        linkBox.innerHTML = '<div class="msg show err">Không kết nối được server</div>';
     }
 }
 
 function openLink() {
     if (!currentLink) return;
     window.open(currentLink, '_blank');
+    document.getElementById('step2').classList.remove('hidden');
+    if (currentToolType === 'magic') {
+        document.getElementById('step2').classList.add('magic-step');
+    } else {
+        document.getElementById('step2').classList.add('active');
+    }
+    document.getElementById('step1').classList.remove('active');
     document.getElementById('codeInput').focus();
 }
 
@@ -431,12 +405,11 @@ async function verifyCode() {
     document.getElementById('verifyMsg').className = 'msg';
 
     try {
-        const res = await fetchWithTimeout(API + '/api/getkey/verify', {
+        const res = await fetch(API + '/api/getkey/verify', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ code })
-        }, 20000);
-
+        });
         const data = await res.json();
 
         if (!data.success) {
@@ -446,8 +419,15 @@ async function verifyCode() {
             return;
         }
 
-        document.getElementById('actionBox').classList.add('hidden');
+        // Thành công!
+        document.getElementById('step2').classList.remove('active', 'magic-step');
+        document.getElementById('step2').classList.add('hidden');
         document.getElementById('step3').classList.remove('hidden');
+        if (data.toolType === 'magic') {
+            document.getElementById('step3').classList.add('magic-step');
+        } else {
+            document.getElementById('step3').classList.add('active');
+        }
 
         document.getElementById('keyResult').textContent = data.key;
         document.getElementById('keyMaxUses').textContent = data.keyInfo.maxUses;
@@ -456,11 +436,7 @@ async function verifyCode() {
         document.getElementById('keyRateLimit').textContent = data.rateLimit.todayUsed + '/' + data.rateLimit.maxPerDay;
 
     } catch (e) {
-        if (e.name === 'AbortError') {
-            showMsg('verifyMsg', '❌ Server không phản hồi, vui lòng thử lại', 'err');
-        } else {
-            showMsg('verifyMsg', '❌ Không kết nối được server', 'err');
-        }
+        showMsg('verifyMsg', '❌ Không kết nối được server', 'err');
         btn.disabled = false;
         btn.textContent = '✅ XÁC NHẬN NHẬN KEY';
     }

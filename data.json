@@ -3,16 +3,16 @@
     "KEY_1791029210112_A61A92A0": {
       "type": "vip",
       "expiry": "2028-12-31",
-      "maxUses": 1,
+      "maxUses": 10,
       "used": 0,
       "active": true,
       "createdBy": "ADMIN",
       "createdAt": "2026-10-03T12:06:50.113Z",
       "note": "Test key",
       "source": "getkey",
-      "sourceCode": "MYCUTEEE",
+      "sourceCode": "MOSLOT01",
       "sourceIp": "127.0.0.1",
-      "givenAt": 1791099896997,
+      "givenAt": 1791267758894,
       "toolType": "moslot"
     },
     "KEY_1791029298095_FFB6F2BA": {
@@ -859,6 +859,28 @@
       "ip": "127.0.0.1",
       "sessionToken": "d63547f7b518ef58a90f54be6d0d9b93b8bfde1069116aa3bd30048de8a3dbe4",
       "message": "Bắt đầu session Magic. Còn 4 lượt"
+    },
+    {
+      "timestamp": "2026-10-06T06:15:20.256Z",
+      "key": "MOSLOT01",
+      "action": "REWARD_CREATED",
+      "username": "ADMIN",
+      "platform": "ADMIN",
+      "uniqId": "ADMIN",
+      "status": "SUCCESS",
+      "ip": "127.0.0.1",
+      "message": "Đã tạo mã reward MOSLOT: MOSLOT01 → https://link4sub.com/LY434bR416 (10 lượt)"
+    },
+    {
+      "timestamp": "2026-10-06T06:22:38.895Z",
+      "key": "KEY_1791029210112_A61A92A0",
+      "action": "GETKEY_SUCCESS",
+      "username": "GUEST",
+      "platform": "WEB",
+      "uniqId": "127.0.0.1",
+      "status": "SUCCESS",
+      "ip": "127.0.0.1",
+      "message": "Cấp key MOSLOT qua vượt link. Mã: MOSLOT01"
     }
   ],
   "sessions": {
@@ -1011,6 +1033,19 @@
       "keyGiven": "KEY_1791029210112_A61A92A0",
       "createdAt": 1791099728263,
       "toolType": "moslot"
+    },
+    "MOSLOT01": {
+      "code": "MOSLOT01",
+      "link": "https://link4sub.com/LY434bR416",
+      "provider": "link4sub",
+      "keyMaxUses": 10,
+      "toolType": "moslot",
+      "note": "Test MoSlot",
+      "used": true,
+      "usedBy": "127.0.0.1",
+      "usedAt": 1791267758894,
+      "keyGiven": "KEY_1791029210112_A61A92A0",
+      "createdAt": 1791267320256
     }
   },
   "getkeyLogs": [
@@ -1019,10 +1054,20 @@
       "code": "MYCUTEEE",
       "keyGiven": "KEY_1791029210112_A61A92A0",
       "time": 1791099896997
+    },
+    {
+      "ip": "127.0.0.1",
+      "code": "MOSLOT01",
+      "keyGiven": "KEY_1791029210112_A61A92A0",
+      "toolType": "moslot",
+      "time": 1791267758894
     }
   ],
   "dailyGetkey": {
     "2026-10-04": {
+      "127.0.0.1": 1
+    },
+    "2026-10-06": {
       "127.0.0.1": 1
     }
   },
